@@ -35,4 +35,8 @@ public class FileService {
   public void deleteFile(long fileId) {
     fileRepository.deleteById(fileId);
   }
+
+  public void deleteAll() {
+    fileRepository.deleteAll();
+  }
 }

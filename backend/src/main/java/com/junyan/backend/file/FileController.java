@@ -68,4 +68,11 @@ public class FileController {
     fileService.deleteFile(id);
     return ResponseEntity.noContent().build();
   }
+
+  @CrossOrigin(origins = "http://127.0.0.1:3000")
+  @DeleteMapping
+  public ResponseEntity<String> deleteAll() {
+    fileService.deleteAll();
+    return ResponseEntity.noContent().build();
+  }
 }
