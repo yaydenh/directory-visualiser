@@ -2,21 +2,21 @@ package com.junyan.backend.file;
 
 import java.time.LocalDateTime;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.Table;
 import jakarta.persistence.GeneratedValue;
 
 @Entity
+@Table(indexes = @Index(name = "path_index", columnList = "path", unique = true))
 public class File {
   
   @Id
   @GeneratedValue
   private Long id;
 
-  @Column(unique = true)
   private String path;
-
   private Long size;
   private String extension;
   private LocalDateTime created;
