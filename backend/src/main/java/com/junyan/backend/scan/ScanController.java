@@ -16,8 +16,7 @@ public class ScanController {
   public ScanController(ScanService scanService) {
     this.scanService = scanService;
   }
-  
-  @CrossOrigin(origins = "http://127.0.0.1:3000")
+
   @PostMapping("/scan")
   public ResponseEntity<String> scanDirectory(@RequestBody DirectoryRequest directoryRequest) {
     String body = "Scanning directory...";
@@ -25,7 +24,6 @@ public class ScanController {
     return ResponseEntity.accepted().body(body);
   }
 
-  @CrossOrigin(origins = "http://127.0.0.1:3000")
   @GetMapping("/scan/status")
   public ResponseEntity<Boolean> getScanStatus() {
     boolean scanInProgress = scanService.scanInProgress();

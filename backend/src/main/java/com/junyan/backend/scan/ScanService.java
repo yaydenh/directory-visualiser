@@ -64,7 +64,6 @@ public class ScanService {
         extension = filename.substring(i + 1);
       }
 
-      // add to DB
       File fileToDb = new File(
         file.toAbsolutePath().toString(),
         attr.size(),

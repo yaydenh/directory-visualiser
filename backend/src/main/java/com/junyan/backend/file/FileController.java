@@ -28,7 +28,6 @@ public class FileController {
     this.fileMapper = fileMapper;
   }
 
-  @CrossOrigin(origins = "http://127.0.0.1:3000")
   @GetMapping("/{id}")
   public ResponseEntity<FileDto> getFile(@PathVariable long fileId) {
     Optional<File> file = fileService.getFile(fileId);
@@ -39,7 +38,6 @@ public class FileController {
     return ResponseEntity.ok().body(fileDto);
   }
 
-  @CrossOrigin(origins = "http://127.0.0.1:3000")
   @PostMapping
   public ResponseEntity<FileDto> addFile(@RequestBody FileDto fileDto) {
     System.out.println("HELLO");
@@ -53,7 +51,6 @@ public class FileController {
     return ResponseEntity.created(location).body(fileDto);
   }
 
-  @CrossOrigin(origins = "http://127.0.0.1:3000")
   @PutMapping("/{id}")
   public ResponseEntity<FileDto> updateFile(@PathVariable Long id, @RequestBody FileDto fileDto) {
     File file = fileMapper.toFile(fileDto);
@@ -61,15 +58,12 @@ public class FileController {
     return ResponseEntity.ok().body(fileDto);
   }
 
-
-  @CrossOrigin(origins = "http://127.0.0.1:3000")
   @DeleteMapping("/{id}")
   public ResponseEntity<String> deleteFile(@PathVariable long id) {
     fileService.deleteFile(id);
     return ResponseEntity.noContent().build();
   }
 
-  @CrossOrigin(origins = "http://127.0.0.1:3000")
   @DeleteMapping
   public ResponseEntity<String> deleteAll() {
     fileService.deleteAll();
