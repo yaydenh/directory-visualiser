@@ -2,13 +2,11 @@ package com.junyan.backend.scan;
 
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.IOException;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-
+import org.springframework.web.bind.annotation.GetMapping;
 
 @RestController
 public class ScanController {
@@ -21,10 +19,16 @@ public class ScanController {
   
   @CrossOrigin(origins = "http://127.0.0.1:3000")
   @PostMapping("/scan")
-  public ResponseEntity<String> scanDirectory(@RequestBody DirectoryRequest directoryRequest) throws IOException {
+  public ResponseEntity<String> scanDirectory(@RequestBody DirectoryRequest directoryRequest) {
     String body = "Scanning directory...";
     scanService.scanDirectory(directoryRequest.getDirectoryPath());
     return ResponseEntity.accepted().body(body);
   }
-  
+
+  @CrossOrigin(origins = "http://127.0.0.1:3000")
+  @GetMapping("/scan/status")
+  public ResponseEntity<Boolean> getScanStatus() {
+    boolean scanInProgress = scanService.scanInProgress();
+    return ResponseEntity.ok().body(scanInProgress);
+  }
 }

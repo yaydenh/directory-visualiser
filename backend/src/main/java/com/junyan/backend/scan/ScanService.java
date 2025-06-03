@@ -23,6 +23,7 @@ import com.junyan.backend.file.FileService;
 public class ScanService {
 
   private ExecutorService executor = Executors.newSingleThreadExecutor();
+  private boolean scanInProgress = false;
 
   private final FileService fileService;
 
@@ -36,13 +37,20 @@ public class ScanService {
       throw new IllegalArgumentException("Invalid path: " + dirPath);
     }
 
+    scanInProgress = true;
+
     executor.execute(() -> {
       try {
         Files.walkFileTree(start, new DirectoryScanner());
+        scanInProgress = false;
       } catch (IOException e) {
         e.printStackTrace();
       }
     });
+  }
+
+  public boolean scanInProgress() {
+    return scanInProgress;
   }
 
   private class DirectoryScanner extends SimpleFileVisitor<Path> {
