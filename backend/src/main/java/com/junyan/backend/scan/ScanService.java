@@ -1,6 +1,5 @@
 package com.junyan.backend.scan;
 
-import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 
 import static java.nio.file.FileVisitResult.CONTINUE;
@@ -14,27 +13,37 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import com.junyan.backend.file.File;
 import com.junyan.backend.file.FileService;
 
 @Service
 public class ScanService {
-  
+
+  private ExecutorService executor = Executors.newSingleThreadExecutor();
+
   private final FileService fileService;
 
   public ScanService(FileService fileService) {
     this.fileService = fileService;
   }
 
-  public void scanDirectory(String dirPath) throws IOException {
+  public void scanDirectory(String dirPath) {
     Path start = Paths.get(dirPath);
     if (!Files.exists(start) || !Files.isDirectory(start)) {
       throw new IllegalArgumentException("Invalid path: " + dirPath);
     }
-    Files.walkFileTree(start, new DirectoryScanner());
-  }
 
+    executor.execute(() -> {
+      try {
+        Files.walkFileTree(start, new DirectoryScanner());
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    });
+  }
 
   private class DirectoryScanner extends SimpleFileVisitor<Path> {
 
@@ -46,7 +55,7 @@ public class ScanService {
       if (i > 0) {
         extension = filename.substring(i + 1);
       }
-      
+
       // add to DB
       File fileToDb = new File(
         file.toAbsolutePath().toString(),
