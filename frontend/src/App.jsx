@@ -35,10 +35,11 @@ function App() {
     if (!scanning) return;
 
     const interval = setInterval(() => {
-      fetch(`${import.meta.env.VITE_APP_API_URL}/scan/progress`, { method: 'GET' })
+      fetch(`${import.meta.env.VITE_APP_API_URL}/scan/status`, { method: 'GET' })
       .then(res => res.json())
-      .then(scanInProgress => {
-        if (!scanInProgress) {
+      .then(data => {
+        console.log(data);
+        if (!data.inProgress || data.hasError) {
           setScanning(false);
           clearInterval(interval);
         }
