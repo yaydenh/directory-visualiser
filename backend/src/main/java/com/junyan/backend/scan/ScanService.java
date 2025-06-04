@@ -13,6 +13,8 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -21,6 +23,9 @@ import com.junyan.backend.file.FileService;
 
 @Service
 public class ScanService {
+
+  private List<File> buffer = new ArrayList<>();
+  private final int BATCH_SIZE = 500;
 
   private ExecutorService executor = Executors.newSingleThreadExecutor();
   private boolean scanInProgress = false;
@@ -72,8 +77,23 @@ public class ScanService {
         LocalDateTime.ofInstant(attr.lastModifiedTime().toInstant(), ZoneId.systemDefault())
       );
 
-      fileService.saveFile(fileToDb);
+      buffer.add(fileToDb);
 
+      if (buffer.size() >= BATCH_SIZE) {
+        System.out.println(buffer.size());
+        fileService.saveAllFiles(new ArrayList<>(buffer));
+        buffer.clear();
+      }
+
+      return CONTINUE;
+    }
+
+    @Override
+    public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+      // if (!buffer.isEmpty()) {
+      //   // fileService.saveAllFiles(new ArrayList<>(buffer));
+      //   buffer.clear();
+      // }
       return CONTINUE;
     }
   }

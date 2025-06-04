@@ -1,7 +1,11 @@
 package com.junyan.backend.file;
 
 import org.springframework.stereotype.Service;
+
+import jakarta.transaction.Transactional;
+
 import java.util.Optional;
+import java.util.List;
 
 @Service
 public class FileService {
@@ -14,6 +18,12 @@ public class FileService {
 
   public File saveFile(File file) {
     return fileRepository.save(file);
+  }
+
+  @Transactional
+  public void saveAllFiles(List<File> files) {
+    fileRepository.saveAll(files);
+    fileRepository.flush();
   }
 
   public Optional<File> getFile(long fileId) {
@@ -34,8 +44,10 @@ public class FileService {
 
   public void deleteFile(long fileId) {
     fileRepository.deleteById(fileId);
+    fileRepository.resetFileSequence();
   }
 
+  @Transactional
   public void deleteAll() {
     fileRepository.deleteAll();
   }
