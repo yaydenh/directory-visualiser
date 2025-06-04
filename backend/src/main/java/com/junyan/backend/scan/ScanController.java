@@ -24,8 +24,15 @@ public class ScanController {
   }
 
   @GetMapping("/scan/status")
-  public ResponseEntity<Boolean> getScanStatus() {
-    boolean scanInProgress = scanService.scanInProgress();
-    return ResponseEntity.ok().body(scanInProgress);
+  public ResponseEntity<ScanStatusResponse> getScanStatus() {
+    boolean inProgress = scanService.scanInProgress();
+    boolean hasError = scanService.getScanError() != null;
+
+    ScanStatusResponse response = new ScanStatusResponse();
+    response.setInProgress(inProgress);
+    response.setHasError(hasError);
+    response.setErrorMessage(hasError ? scanService.getScanError().getMessage() : null);
+
+    return ResponseEntity.ok().body(response);
   }
 }

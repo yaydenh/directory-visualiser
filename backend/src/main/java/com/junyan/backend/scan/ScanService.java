@@ -28,7 +28,8 @@ public class ScanService {
   private final int BATCH_SIZE = 500;
 
   private ExecutorService executor = Executors.newSingleThreadExecutor();
-  private boolean scanInProgress = false;
+  private volatile boolean scanInProgress = false;
+  private volatile Throwable scanError = null;
 
   private final FileService fileService;
 
@@ -43,15 +44,22 @@ public class ScanService {
     }
 
     scanInProgress = true;
+    scanError = null;
 
     executor.execute(() -> {
       try {
         Files.walkFileTree(start, new DirectoryScanner());
-        scanInProgress = false;
       } catch (IOException e) {
-        e.printStackTrace();
+        scanError = e;
+      } finally {
+        scanInProgress = false;
       }
     });
+  }
+
+
+  public Throwable getScanError() {
+    return scanError;
   }
 
   public boolean scanInProgress() {
@@ -80,7 +88,6 @@ public class ScanService {
       buffer.add(fileToDb);
 
       if (buffer.size() >= BATCH_SIZE) {
-        System.out.println(buffer.size());
         fileService.saveAllFiles(new ArrayList<>(buffer));
         buffer.clear();
       }
@@ -90,10 +97,10 @@ public class ScanService {
 
     @Override
     public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-      // if (!buffer.isEmpty()) {
-      //   // fileService.saveAllFiles(new ArrayList<>(buffer));
-      //   buffer.clear();
-      // }
+      if (!buffer.isEmpty()) {
+        fileService.saveAllFiles(new ArrayList<>(buffer));
+        buffer.clear();
+      }
       return CONTINUE;
     }
   }
