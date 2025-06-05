@@ -49,6 +49,10 @@ public class ScanService {
     executor.execute(() -> {
       try {
         Files.walkFileTree(start, new DirectoryScanner());
+        if (!buffer.isEmpty()) {
+          fileService.saveAllFiles(new ArrayList<>(buffer));
+          buffer.clear();
+        }
       } catch (IOException e) {
         scanError = e;
       } finally {
@@ -92,15 +96,6 @@ public class ScanService {
         buffer.clear();
       }
 
-      return CONTINUE;
-    }
-
-    @Override
-    public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-      if (!buffer.isEmpty()) {
-        fileService.saveAllFiles(new ArrayList<>(buffer));
-        buffer.clear();
-      }
       return CONTINUE;
     }
   }
