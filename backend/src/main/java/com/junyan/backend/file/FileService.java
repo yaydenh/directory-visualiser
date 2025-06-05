@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import jakarta.transaction.Transactional;
 
 import java.util.Optional;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -26,8 +27,14 @@ public class FileService {
     fileRepository.flush();
   }
 
-  public Optional<File> getFile(long fileId) {
+  public Optional<File> getFile(Long fileId) {
     return fileRepository.findById(fileId);
+  }
+
+  public List<Optional<File>> getFiles(List<Long> fileIds) {
+    return fileIds.stream()
+                  .map(fileRepository::findById)
+                  .toList();
   }
 
   public File updateFile(File file) {
@@ -42,7 +49,7 @@ public class FileService {
     return fileRepository.save(oldFile);
   }
 
-  public void deleteFile(long fileId) {
+  public void deleteFile(Long fileId) {
     fileRepository.deleteById(fileId);
     fileRepository.resetFileSequence();
   }
