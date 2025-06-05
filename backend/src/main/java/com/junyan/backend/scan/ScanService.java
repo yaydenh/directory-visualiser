@@ -71,9 +71,15 @@ public class ScanService {
   }
 
   private class DirectoryScanner extends SimpleFileVisitor<Path> {
+    private void batchInsert() {
+      if (buffer.size() >= BATCH_SIZE) {
+        fileService.saveAllFiles(new ArrayList<>(buffer));
+        buffer.clear();
+      }
+    }
 
     @Override
-    public FileVisitResult visitFile(Path file, BasicFileAttributes attr) {
+    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
       String filename = file.getFileName().toString();
       String extension = "";
       int i = filename.lastIndexOf(".");
@@ -83,18 +89,32 @@ public class ScanService {
 
       File fileToDb = new File(
         file.toAbsolutePath().toString(),
-        attr.size(),
+        attrs.size(),
         extension,
-        LocalDateTime.ofInstant(attr.creationTime().toInstant(), ZoneId.systemDefault()),
-        LocalDateTime.ofInstant(attr.lastModifiedTime().toInstant(), ZoneId.systemDefault())
+        LocalDateTime.ofInstant(attrs.creationTime().toInstant(), ZoneId.systemDefault()),
+        LocalDateTime.ofInstant(attrs.lastModifiedTime().toInstant(), ZoneId.systemDefault()),
+        false
       );
 
       buffer.add(fileToDb);
+      batchInsert();
 
-      if (buffer.size() >= BATCH_SIZE) {
-        fileService.saveAllFiles(new ArrayList<>(buffer));
-        buffer.clear();
-      }
+      return CONTINUE;
+    }
+
+    @Override
+    public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
+      File dirToDb = new File(
+        dir.toAbsolutePath().toString(),
+        0L,
+        "",
+        LocalDateTime.ofInstant(attrs.creationTime().toInstant(), ZoneId.systemDefault()),
+        LocalDateTime.ofInstant(attrs.lastModifiedTime().toInstant(), ZoneId.systemDefault()),
+        true
+      );
+
+      buffer.add(dirToDb);
+      batchInsert();
 
       return CONTINUE;
     }

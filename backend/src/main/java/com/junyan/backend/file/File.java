@@ -22,25 +22,28 @@ public class File {
   private String extension;
   private LocalDateTime created;
   private LocalDateTime lastModified;
+  private boolean isDirectory;
 
   public File() {
   }
 
-  public File(String path, Long size, String extension, LocalDateTime created, LocalDateTime lastModified) {
+  public File(String path, Long size, String extension, LocalDateTime created, LocalDateTime lastModified, boolean isDirectory) {
     this.path = path;
     this.size = size;
     this.extension = extension;
     this.created = created;
     this.lastModified = lastModified;
+    this.isDirectory = isDirectory;
   }
 
-    public File(Long id, String path, Long size, String extension, LocalDateTime created, LocalDateTime lastModified) {
+    public File(Long id, String path, Long size, String extension, LocalDateTime created, LocalDateTime lastModified, boolean isDirectory) {
     this.id = id;
     this.path = path;
     this.size = size;
     this.extension = extension;
     this.created = created;
     this.lastModified = lastModified;
+    this.isDirectory = isDirectory;
   }
 
   public Long getId() {
@@ -89,5 +92,13 @@ public class File {
 
   public void setLastModified(LocalDateTime lastModified) {
     this.lastModified = lastModified;
+  }
+
+  public boolean isDirectory() {
+    return isDirectory;
+  }
+
+  public void setDirectory(boolean isDirectory) {
+    this.isDirectory = isDirectory;
   }
 }

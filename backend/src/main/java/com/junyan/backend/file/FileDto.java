@@ -28,23 +28,28 @@ public class FileDto {
   @PastOrPresent(message = "LastModified cannot be in the future")
   private LocalDateTime lastModified;
 
+  @NotNull(message = "isDirectory cannot be null")
+  private boolean isDirectory;
+
   public FileDto() {};
 
-  public FileDto(Long id, String path, Long size, String extension, LocalDateTime created, LocalDateTime lastModified) {
+  public FileDto(Long id, String path, Long size, String extension, LocalDateTime created, LocalDateTime lastModified, boolean isDirectory) {
     this.id = id;
     this.path = path;
     this.size = size;
     this.extension = extension;
     this.created = created;
     this.lastModified = lastModified;
+    this.isDirectory = isDirectory;
   }
 
-  public FileDto(String path, Long size, String extension, LocalDateTime created, LocalDateTime lastModified) {
+  public FileDto(String path, Long size, String extension, LocalDateTime created, LocalDateTime lastModified, boolean isDirectory) {
     this.path = path;
     this.size = size;
     this.extension = extension;
     this.created = created;
     this.lastModified = lastModified;
+    this.isDirectory = isDirectory;
   }
   
   public Long getId() {
@@ -82,5 +87,11 @@ public class FileDto {
   }
   public void setLastModified(LocalDateTime lastModified) {
     this.lastModified = lastModified;
+  }
+  public boolean isDirectory() {
+    return isDirectory;
+  }
+  public void setDirectory(boolean isDirectory) {
+    this.isDirectory = isDirectory;
   }
 }
