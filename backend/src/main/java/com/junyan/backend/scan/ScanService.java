@@ -28,6 +28,7 @@ public class ScanService {
   private final int BATCH_SIZE = 500;
 
   private ExecutorService executor = Executors.newSingleThreadExecutor();
+  
   private volatile boolean scanInProgress = false;
   private volatile Throwable scanError = null;
 
@@ -60,7 +61,6 @@ public class ScanService {
       }
     });
   }
-
 
   public Throwable getScanError() {
     return scanError;

@@ -10,7 +10,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 
 @Entity
-@Table(indexes = @Index(name = "path_index", columnList = "path", unique = true))
+@Table(name = "file_entity", indexes = @Index(name = "path_index", columnList = "path", unique = true))
 public class File {
   
   @Id
@@ -36,7 +36,7 @@ public class File {
     this.isDirectory = isDirectory;
   }
 
-    public File(Long id, String path, Long size, String extension, LocalDateTime created, LocalDateTime lastModified, boolean isDirectory) {
+  public File(Long id, String path, Long size, String extension, LocalDateTime created, LocalDateTime lastModified, boolean isDirectory) {
     this.id = id;
     this.path = path;
     this.size = size;

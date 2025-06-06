@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import jakarta.transaction.Transactional;
 
 import java.util.Optional;
-import java.util.ArrayList;
+import java.nio.file.Paths;
 import java.util.List;
 
 @Service
@@ -35,6 +35,15 @@ public class FileService {
     return fileIds.stream()
                   .map(fileRepository::findById)
                   .toList();
+  }
+
+  public List<File> getDirectoryChildren(String dirPath) {
+    String absolutePath = Paths.get(dirPath).toAbsolutePath().toString();
+    int slashCount = (int)absolutePath.chars().filter(c -> c == '/').count();
+    return fileRepository.findDirectoryChildren(absolutePath, slashCount)
+      .stream()
+      .peek(file -> file.setPath(file.getPath().substring(absolutePath.length() + 1)))
+      .toList();
   }
 
   public File updateFile(File file) {
