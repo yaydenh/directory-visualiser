@@ -6,67 +6,75 @@ import Button from '@mui/material/Button'
 import Box from '@mui/material/Box'
 import CircularProgress from '@mui/material/CircularProgress'
 
+import FileTable from './FileTable'
+
 function App() {
 
   const [ directory, setDirectory ] = useState("");
   const [ scanning, setScanning ] = useState(false);
+  const [ scanSuccess, setScanSuccess ] = useState(false);
 
   function handleTextFieldChange(e) {
     setDirectory(e.target.value);
   }
 
-  function handleClick(action) {
+  async function handleClick(action) {
     if (action === 'delete') {
-      fetch(`${import.meta.env.VITE_APP_API_URL}/files`, { method: 'DELETE' });
-
+      await fetch(`${import.meta.env.VITE_APP_API_URL}/files`, { method: 'DELETE' });
     } else if (action === 'scan') {
-      fetch(`${import.meta.env.VITE_APP_API_URL}/scan`, {
+      await fetch(`${import.meta.env.VITE_APP_API_URL}/scan`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({ directoryPath : directory})
-      })
-      .then(() => setScanning(true));
+      });
+      setScanSuccess(false);
+      setScanning(true);
     }
   }
 
   useEffect(() => {
     if (!scanning) return;
 
-    const interval = setInterval(() => {
-      fetch(`${import.meta.env.VITE_APP_API_URL}/scan/status`, { method: 'GET' })
-      .then(res => res.json())
-      .then(data => {
-        console.log(data);
-        if (!data.inProgress || data.hasError) {
-          setScanning(false);
-          clearInterval(interval);
-        }
-      })
+    const interval = setInterval(async () => {
+      const res = await fetch(`${import.meta.env.VITE_APP_API_URL}/scan/status`, { method: 'GET' });
+      const data = await res.json();
+
+      if (!data.inProgress || data.hasError) {
+        setScanning(false);
+        clearInterval(interval);
+        if (!data.hasError) setScanSuccess(true)
+      }
+
     }, 500);
 
     return () => clearInterval(interval);
   }, [scanning]);
 
   return (
-    <>
-      <p>Please input directory path:</p>
-      <TextField label='Directory Path' variant='outlined' onChange={handleTextFieldChange}/>
-      <Box m={2}>
-        <Button variant='outlined' onClick={() => handleClick('scan')} size='small'>
-          Scan Directory
-        </Button>
+    <Box sx={{height: '100vh', width: '100vw', display: 'flex', flexDirection: 'column', textAlign: 'center'}}>
+      <Box sx={{flex: '1', border: '1px solid black', padding: '10px'}}>
+        <FileTable dataReady={scanSuccess} root={directory}></FileTable>
       </Box>
-      <Box m={2}>
-        <Button variant='outlined' onClick={() => handleClick('delete')} size='small'>
-          Clear Database
-        </Button>
+      <Box sx={{flex: '1'}}>
+        <p>Please input directory path:</p>
+        <TextField label='Directory Path' variant='outlined' onChange={handleTextFieldChange}/>
+        <Box m={2}>
+          <Button variant='outlined' onClick={() => handleClick('scan')} size='small'>
+            Scan Directory
+          </Button>
+        </Box>
+        <Box m={2}>
+          <Button variant='outlined' onClick={() => handleClick('delete')} size='small'>
+            Clear Database
+          </Button>
+        </Box>
+        {scanning && (
+          <CircularProgress />
+        )}
       </Box>
-      {scanning && (
-        <CircularProgress />
-      )}
-    </>
+    </Box>
   )
 }
 
