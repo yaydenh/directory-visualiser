@@ -39,6 +39,12 @@ public class FileController {
     return ResponseEntity.ok().body(fileDto);
   }
 
+  @GetMapping("/by-path")
+  public ResponseEntity<FileDto> getFileByPath(@RequestParam String path) {
+    File file = fileService.getFileByPath(path);
+    return ResponseEntity.ok().body(fileMapper.toDto(file));
+  }
+
   @GetMapping(params = "ids")
   public ResponseEntity<List<FileDto>> getFiles(@RequestParam("ids") List<Long> fileIds) {
     List<FileDto> dtos = fileService.getFiles(fileIds)

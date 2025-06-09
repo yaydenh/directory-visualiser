@@ -31,6 +31,11 @@ public class FileService {
     return fileRepository.findById(fileId);
   }
 
+  public File getFileByPath(String path) {
+    String absolutePath = Paths.get(path).toAbsolutePath().toString();
+    return fileRepository.findByPath(absolutePath);
+  }
+
   public List<Optional<File>> getFiles(List<Long> fileIds) {
     return fileIds.stream()
                   .map(fileRepository::findById)
@@ -42,7 +47,6 @@ public class FileService {
     int slashCount = (int)absolutePath.chars().filter(c -> c == '/').count();
     return fileRepository.findDirectoryChildren(absolutePath, slashCount)
       .stream()
-      .peek(file -> file.setPath(file.getPath().substring(absolutePath.length() + 1)))
       .toList();
   }
 
