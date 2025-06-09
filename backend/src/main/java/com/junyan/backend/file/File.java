@@ -2,6 +2,7 @@ package com.junyan.backend.file;
 
 import java.time.LocalDateTime;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
@@ -15,13 +16,25 @@ public class File {
   
   @Id
   @GeneratedValue(strategy = GenerationType.SEQUENCE)
+  @Column(name = "id")
   private Long id;
 
+  @Column(name = "path")
   private String path;
+
+  @Column(name = "size")
   private Long size;
+
+  @Column(name = "extension")
   private String extension;
+
+  @Column(name = "created")
   private LocalDateTime created;
+
+  @Column(name = "last_modified")
   private LocalDateTime lastModified;
+
+  @Column(name = "is_directory")
   private boolean isDirectory;
 
   public File() {

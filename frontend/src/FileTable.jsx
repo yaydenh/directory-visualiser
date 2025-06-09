@@ -36,7 +36,7 @@ function FileTable({ dataReady, root }) {
     );
   };
 
-  const openDirectory = (directoryId) => {
+  const openDirectory = async (directoryId) => {
 
     const directoryIndex = data.findIndex(file => file.id === directoryId);
     if (directoryIndex === -1) return;  
@@ -44,24 +44,32 @@ function FileTable({ dataReady, root }) {
     const directoryData = data[directoryIndex];
     if (directoryData.open) return;
 
-    (async () => {
+    try {
       const res = await fetch(`${import.meta.env.VITE_APP_API_URL}/files?directory=${directoryData.path}`, { method: 'GET' });
-      const jsonData = await res.json();
+      const childrenData = await res.json();
 
-      jsonData.forEach(file => {
+      const updatedData = [...data];
+      updatedData[directoryIndex] = { ...directoryData, open: true};
+
+      if (childrenData.length === 0) {
+        setData(updatedData);
+        return;
+      }
+
+      childrenData.forEach(file => {
         if (file.directory) file.open = false;
         file.depth = directoryData.depth + 1;
       });
-      
-      directoryData.open = true;
 
-      // append children to data
       setData([
-        ...data.slice(0, directoryIndex + 1),
-        ...jsonData,
+        ...updatedData.slice(0, directoryIndex + 1),
+        ...childrenData,
         ...data.slice(directoryIndex + 1)
       ]);
-    })();
+    } catch (error) {
+      console.error('Failed to open directory:', error);
+    }
+
   };
 
   const closeDirectory = (directoryId) => {
@@ -71,20 +79,19 @@ function FileTable({ dataReady, root }) {
     const directoryData = data[directoryIndex];
     if (!directoryData.open) return;
 
-    let lastChildIndex = data.length;
-    for (let i = directoryIndex + 1; i < data.length; i++) {
-      if (data[i].depth <= directoryData.depth) {
-        lastChildIndex = i;
-        break;
-      }
-    }
+    const lastChildIndex = data.findIndex((file, i) => 
+      i > directoryIndex && file.depth <= directoryData.depth
+    );
 
-    directoryData.open = false;
+    const endIndex = lastChildIndex === -1 ? data.length : lastChildIndex;
 
-    setData([
-      ...data.slice(0, directoryIndex + 1),
-      ...data.slice(lastChildIndex)
-    ])
+    const updatedData = [
+      ...data.slice(0, directoryIndex),
+      {...directoryData, open: false},
+      ...data.slice(endIndex)
+    ];
+
+    setData(updatedData);
   };
 
   // load root dir initially
@@ -92,11 +99,16 @@ function FileTable({ dataReady, root }) {
     if (!dataReady) return;
 
     (async () => {
-      const res = await fetch(`${import.meta.env.VITE_APP_API_URL}/files/by-path?path=${root}`, { method: 'GET' });
-      const directoryData = await res.json();
-      directoryData.open = false;
-      directoryData.depth = 0;
-      setData([directoryData]);
+      try {
+        const res = await fetch(`${import.meta.env.VITE_APP_API_URL}/files/by-path?path=${root}`, { method: 'GET' });
+        const directoryData = await res.json();
+        directoryData.open = false;
+        directoryData.depth = 0;
+        setData([directoryData]);
+      } catch (error) {
+        console.error('Failed to get root:', error);
+      }
+
     })();
 
   }, [dataReady]);

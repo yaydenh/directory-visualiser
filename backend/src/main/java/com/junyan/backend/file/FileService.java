@@ -6,6 +6,7 @@ import jakarta.transaction.Transactional;
 
 import java.util.Optional;
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -45,9 +46,14 @@ public class FileService {
   public List<File> getDirectoryChildren(String dirPath) {
     String absolutePath = Paths.get(dirPath).toAbsolutePath().toString();
     int slashCount = (int)absolutePath.chars().filter(c -> c == '/').count();
-    return fileRepository.findDirectoryChildren(absolutePath, slashCount)
-      .stream()
-      .toList();
+    try {
+      return fileRepository.findDirectoryChildren(absolutePath, slashCount)
+        .stream()
+        .toList();
+    } catch (Exception e) {
+      // doing this for now because repository query throws error when zero rows and idk why
+      return Collections.emptyList();
+    }
   }
 
   public File updateFile(File file) {
