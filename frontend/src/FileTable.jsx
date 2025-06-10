@@ -1,5 +1,5 @@
 
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import Box from '@mui/material/Box'
 import { VariableSizeGrid  as Grid } from 'react-window'
@@ -8,36 +8,13 @@ import DirectoryButton from './DirectoryButton';
 
 function FileTable({ dataReady, root }) {
 
-  const [ columnWidths, setColumnWidths ] = useState([500, 100, 100, 100, 200, 200])
+  const [ columnWidths, setColumnWidths ] = useState([500, 100, 100, 100, 200, 200]);
+  const [ resizing, setResizing ] = useState({index: null, startX: 0, startWidth: 0});
   const [ data, setData ] = useState([]);
-
+  const gridRef = useRef();
   const columnMapping = ['path', 'directory', 'size', 'extension', 'created', 'lastModified']
 
-  const Cell = ({ rowIndex, columnIndex, style }) => {
-    
-    const row = data[rowIndex];
-
-    let value = row[columnMapping[columnIndex]];
-    if (columnMapping[columnIndex] === 'directory') {
-      value = value ? "Yes" : "No"
-    } else if (columnMapping[columnIndex] === 'path') {
-      value = value.split('/').pop();
-    }
-
-    const directoryIcon = columnIndex === 0 && row.directory;
-
-    return (
-    <div style={{ ...style, color: 'black', textAlign: 'left', marginLeft: (columnIndex === 0) * 30 * row.depth }}>
-      {directoryIcon && (
-        <DirectoryButton directoryId={row.id} isOpen={row.open} openDirectory={openDirectory} closeDirectory={closeDirectory} />
-      )}
-      {value}
-    </div>
-    );
-  };
-
   const openDirectory = async (directoryId) => {
-
     const directoryIndex = data.findIndex(file => file.id === directoryId);
     if (directoryIndex === -1) return;  
 
@@ -108,21 +85,107 @@ function FileTable({ dataReady, root }) {
       } catch (error) {
         console.error('Failed to get root:', error);
       }
-
     })();
 
   }, [dataReady]);
 
+  // resizing column widths by dragging
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      if (resizing.index === null) return;
+
+      document.body.style.cursor = 'col-resize';
+      document.body.style.userSelect = 'none';  // prevent highlighting text
+
+      const deltaX = e.clientX - resizing.startX;
+      setColumnWidths(prevWidths => {
+        const newWidths = [...prevWidths];
+        newWidths[resizing.index] = Math.max(50, resizing.startWidth + deltaX);
+        return newWidths;
+      })
+    };
+
+    const handleMouseUp = () => {
+      // setTimeout because it causes rerenders and interferes with DirectoryButton
+      setTimeout(() => {
+        setResizing({index: null, startX: 0, startWidth: 0});
+      }, 0);
+      document.body.style.cursor = 'default';
+      document.body.style.userSelect = 'auto';
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = 'default';
+      document.body.style.userSelect = 'auto';
+    };
+  }, [resizing]);
+
+  // rerender react-window after resizing columns
+  useEffect(() => {
+    gridRef.current?.resetAfterColumnIndex(0);
+  }, [columnWidths]);
+
+  const Cell = ({ rowIndex, columnIndex, style }) => {
+
+    const row = data[rowIndex];
+
+    let value = row[columnMapping[columnIndex]];
+    if (columnMapping[columnIndex] === 'directory') {
+      value = value ? "Yes" : "No"
+    } else if (columnMapping[columnIndex] === 'path') {
+      value = value.split('/').pop();
+    }
+
+    const directoryIcon = columnIndex === 0 && row.directory;
+
+    return (
+    <div style={{ ...style, color: 'black', textAlign: 'left', marginLeft: (columnIndex === 0) * 30 * row.depth }}>
+      {directoryIcon && (
+        <DirectoryButton directoryId={row.id} isOpen={row.open} openDirectory={openDirectory} closeDirectory={closeDirectory} />
+      )}
+      {value}
+    </div>
+    );
+  };
+
   return (
     <Box display={'flex'} flexDirection={'column'} sx={{ width: '100%', height: '100%', bgcolor: 'lightgrey'}}>
-      <Box display={'flex'} textAlign={'left'} color={'red'}>
+      <Box display={'flex'} textAlign={'left'} color={'blue'}>
         {columnMapping.map((col, index) => (
-          <div key={col} style={{width: columnWidths[index], height: '20px' }}>
-            {col}
-          </div>
+          <Box key={col} sx={{width: columnWidths[index], height: '20px', position: 'relative' }}>
+            <span>{col}</span>
+            {(index != 5) &&
+              <Box
+                sx={{
+                  width: 5,
+                  height: '100%',
+                  position: 'absolute',
+                  right: '5px',
+                  top: 0,
+                  color: 'gray',
+                  cursor: 'col-resize',
+                }}
+                onMouseDown={e => {
+                  setResizing({
+                    index,
+                    startX: e.clientX,
+                    startWidth: columnWidths[index],
+                  })
+                }}
+              >
+                &#8942;
+              </Box>
+            }
+          </Box>
         ))}
       </Box>
       <Grid
+        ref={gridRef}
         width={2000}
         height={500}
         columnCount={6}

@@ -8,6 +8,7 @@ import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 function DirectoryButton({ directoryId, isOpen, openDirectory, closeDirectory }) {
 
   function handleClick() {
+    console.log("CLICK");
     if (!isOpen) openDirectory(directoryId);
     else closeDirectory(directoryId);
   }
