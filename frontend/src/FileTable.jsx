@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 
 import Box from '@mui/material/Box'
 import { VariableSizeGrid  as Grid } from 'react-window'
+import AutoSizer from "react-virtualized-auto-sizer";
 
 import DirectoryButton from './DirectoryButton';
 
@@ -100,7 +101,7 @@ function FileTable({ dataReady, root }) {
       const deltaX = e.clientX - resizing.startX;
       setColumnWidths(prevWidths => {
         const newWidths = [...prevWidths];
-        newWidths[resizing.index] = Math.max(50, resizing.startWidth + deltaX);
+        newWidths[resizing.index] = Math.max(100, resizing.startWidth + deltaX);
         return newWidths;
       })
     };
@@ -133,23 +134,33 @@ function FileTable({ dataReady, root }) {
   const Cell = ({ rowIndex, columnIndex, style }) => {
 
     const row = data[rowIndex];
+    const column = columnMapping[columnIndex];
 
-    let value = row[columnMapping[columnIndex]];
-    if (columnMapping[columnIndex] === 'directory') {
+    let value = row[column];
+    if (column === 'directory') {
       value = value ? "Yes" : "No"
-    } else if (columnMapping[columnIndex] === 'path') {
+    } else if (column === 'path') {
       value = value.split('/').pop();
     }
 
-    const directoryIcon = columnIndex === 0 && row.directory;
+    const isDirectory = columnIndex === 0 && row.directory;
 
     return (
-    <div style={{ ...style, color: 'black', textAlign: 'left', marginLeft: (columnIndex === 0) * 30 * row.depth }}>
-      {directoryIcon && (
-        <DirectoryButton directoryId={row.id} isOpen={row.open} openDirectory={openDirectory} closeDirectory={closeDirectory} />
-      )}
-      {value}
-    </div>
+    <Box sx={{ ...style, color: 'black', textAlign: 'left', }}>
+      <Box
+        sx={{
+          paddingLeft: (columnIndex === 0) * 3 * row.depth,
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap'
+        }}
+      >
+        {isDirectory && (
+          <DirectoryButton directoryId={row.id} isOpen={row.open} openDirectory={openDirectory} closeDirectory={closeDirectory} />
+        )}
+        {value}
+      </Box>
+    </Box>
     );
   };
 
@@ -159,7 +170,7 @@ function FileTable({ dataReady, root }) {
         {columnMapping.map((col, index) => (
           <Box key={col} sx={{width: columnWidths[index], height: '20px', position: 'relative' }}>
             <span>{col}</span>
-            {(index != 5) &&
+            {(index != columnMapping.length - 1) && (
               <Box
                 sx={{
                   width: 5,
@@ -180,21 +191,25 @@ function FileTable({ dataReady, root }) {
               >
                 &#8942;
               </Box>
-            }
+            )}
           </Box>
         ))}
       </Box>
-      <Grid
-        ref={gridRef}
-        width={2000}
-        height={500}
-        columnCount={6}
-        columnWidth={index => columnWidths[index]}
-        rowCount={data.length}
-        rowHeight={() => 20}
-      >
-        {Cell}
-      </Grid>
+      <AutoSizer>
+        {({ height, width }) => (
+          <Grid
+            ref={gridRef}
+            width={width}
+            height={height - 20}
+            columnCount={6}
+            columnWidth={index => columnWidths[index]}
+            rowCount={data.length}
+            rowHeight={() => 20}
+          >
+            {Cell}
+          </Grid>
+        )}
+      </AutoSizer>
     </Box>
   )
 }

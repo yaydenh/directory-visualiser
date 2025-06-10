@@ -17,6 +17,7 @@
     "@mui/x-tree-view": "^8.5.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "react-virtualized-auto-sizer": "^1.0.26",
     "react-window": "^1.8.11"
   },
   "devDependencies": {
