@@ -44,7 +44,7 @@ function App() {
       if (!data.inProgress || data.hasError) {
         setScanning(false);
         clearInterval(interval);
-        if (!data.hasError) setScanSuccess(true)
+        if (!data.hasError) setScanSuccess(true);
       }
 
     }, 500);
@@ -55,24 +55,31 @@ function App() {
   return (
     <Box sx={{height: '100vh', width: '100vw', display: 'flex', flexDirection: 'column', textAlign: 'center'}}>
       <Box sx={{flex: '1', border: '1px solid black', padding: '10px'}}>
-        <FileTable dataReady={scanSuccess} root={directory}></FileTable>
+        {scanSuccess && (
+          <FileTable dataReady={scanSuccess} root={directory}></FileTable>
+        )}
+        {!scanSuccess && (
+          <div>
+            <p>Please input directory path:</p>
+            <TextField label='Directory Path' variant='outlined' onChange={handleTextFieldChange}/>
+            <Box m={2}>
+              <Button variant='outlined' onClick={() => handleClick('scan')} size='small'>
+                Scan Directory
+              </Button>
+            </Box>
+            <Box m={2}>
+              <Button variant='outlined' onClick={() => handleClick('delete')} size='small'>
+                Clear Database
+              </Button>
+            </Box>
+            {scanning && (
+              <CircularProgress />
+            )}
+          </div>
+        )}
       </Box>
       <Box sx={{flex: '1'}}>
-        <p>Please input directory path:</p>
-        <TextField label='Directory Path' variant='outlined' onChange={handleTextFieldChange}/>
-        <Box m={2}>
-          <Button variant='outlined' onClick={() => handleClick('scan')} size='small'>
-            Scan Directory
-          </Button>
-        </Box>
-        <Box m={2}>
-          <Button variant='outlined' onClick={() => handleClick('delete')} size='small'>
-            Clear Database
-          </Button>
-        </Box>
-        {scanning && (
-          <CircularProgress />
-        )}
+
       </Box>
     </Box>
   )

@@ -1,5 +1,5 @@
 
-import { useEffect, useRef, useState } from 'react';
+import { Profiler, useEffect, useRef, useState } from 'react';
 
 import Box from '@mui/material/Box'
 import { VariableSizeGrid  as Grid } from 'react-window'
@@ -146,21 +146,21 @@ function FileTable({ dataReady, root }) {
     const isDirectory = columnIndex === 0 && row.directory;
 
     return (
-    <Box sx={{ ...style, color: 'black', textAlign: 'left', }}>
-      <Box
-        sx={{
-          paddingLeft: (columnIndex === 0) * 3 * row.depth,
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-          whiteSpace: 'nowrap'
-        }}
-      >
-        {isDirectory && (
-          <DirectoryButton directoryId={row.id} isOpen={row.open} openDirectory={openDirectory} closeDirectory={closeDirectory} />
-        )}
-        {value}
-      </Box>
-    </Box>
+      <div style={{ ...style, color: 'black', textAlign: 'left', }}>
+        <div
+          style={{
+            paddingLeft: (columnIndex === 0) * 3 * row.depth,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap'
+          }}
+        >
+          {isDirectory && (
+            <DirectoryButton directoryId={row.id} isOpen={row.open} openDirectory={openDirectory} closeDirectory={closeDirectory} />
+          )}
+          {value}
+        </div>
+      </div>
     );
   };
 
@@ -195,21 +195,25 @@ function FileTable({ dataReady, root }) {
           </Box>
         ))}
       </Box>
-      <AutoSizer>
-        {({ height, width }) => (
-          <Grid
-            ref={gridRef}
-            width={width}
-            height={height - 20}
-            columnCount={6}
-            columnWidth={index => columnWidths[index]}
-            rowCount={data.length}
-            rowHeight={() => 20}
-          >
-            {Cell}
-          </Grid>
-        )}
-      </AutoSizer>
+      <Profiler id="Grid" onRender={(id, phase, actualDuration) => {
+  console.log(`${id} ${phase} took ${actualDuration}ms`);
+      }}>
+          <AutoSizer>
+            {({ height, width }) => (
+              <Grid
+                ref={gridRef}
+                width={width}
+                height={height - 20}
+                columnCount={6}
+                columnWidth={index => columnWidths[index]}
+                rowCount={data.length}
+                rowHeight={() => 20}
+              >
+                {Cell}
+              </Grid>
+            )}
+          </AutoSizer>
+        </Profiler>
     </Box>
   )
 }
