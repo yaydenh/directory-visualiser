@@ -20,9 +20,9 @@ public interface FileRepository extends JpaRepository<File, Long> {
     SELECT *
     FROM file_entity as f
     WHERE f.path LIKE :directoryPath
-    AND LENGTH(f.path) - LENGTH(REPLACE(f.path, '/', '')) = :slashCount + 1
+    AND f.depth = :depth
     ORDER BY f.is_directory DESC, f.path
   """, nativeQuery = true)
   List<File> findDirectoryChildren(@Param("directoryPath") String directoryPath,
-                                   @Param("slashCount") int slashCount);
+                                   @Param("depth") int depth);
 }

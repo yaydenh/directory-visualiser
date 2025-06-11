@@ -12,7 +12,7 @@ import jakarta.persistence.GenerationType;
 
 @Entity
 @Table(name = "file_entity", indexes = {
-  @Index(name = "path_index", columnList = "path", unique = true),
+  @Index(name = "path_index", columnList = "path"),
   @Index(name = "depth_index", columnList = "depth")
 })
 public class File {

@@ -47,9 +47,7 @@ public class FileService {
     String absolutePath = Paths.get(dirPath).toAbsolutePath().toString();
     int slashCount = (int)absolutePath.chars().filter(c -> c == '/').count();
     try {
-      return fileRepository.findDirectoryChildren(absolutePath + "/%", slashCount)
-        .stream()
-        .toList();
+      return fileRepository.findDirectoryChildren(absolutePath + "/%", slashCount + 1);
     } catch (Exception e) {
       // doing this for now because repository query throws error when zero rows and idk why
       return Collections.emptyList();
