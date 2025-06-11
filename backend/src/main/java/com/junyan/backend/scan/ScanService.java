@@ -13,7 +13,9 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -71,11 +73,44 @@ public class ScanService {
   }
 
   private class DirectoryScanner extends SimpleFileVisitor<Path> {
+    // used to calculate size of directories
+    private static class DirectoryInfo {
+      File fileEntity;
+      long size = 0;
+
+      public DirectoryInfo(File fileEntity) {
+        this.fileEntity = fileEntity;
+      }
+    }
+    
+    private Deque<DirectoryInfo> directoryStack = new ArrayDeque<>();
+
     private void batchInsert() {
       if (buffer.size() >= BATCH_SIZE) {
         fileService.saveAllFiles(new ArrayList<>(buffer));
         buffer.clear();
       }
+    }
+
+    @Override
+    public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
+      String absolutePath = dir.toAbsolutePath().toString();
+      int slashCount = (int)absolutePath.chars().filter(c -> c == '/').count();
+
+      File dirFile = new File(
+        dir.toAbsolutePath().toString(),
+        0L,
+        "",
+        LocalDateTime.ofInstant(attrs.creationTime().toInstant(), ZoneId.systemDefault()),
+        LocalDateTime.ofInstant(attrs.lastModifiedTime().toInstant(), ZoneId.systemDefault()),
+        true,
+        slashCount
+      );
+
+      DirectoryInfo dirInfo = new DirectoryInfo(dirFile);
+      directoryStack.push(dirInfo);
+
+      return CONTINUE;
     }
 
     @Override
@@ -103,27 +138,25 @@ public class ScanService {
       buffer.add(fileToDb);
       batchInsert();
 
+      if (!directoryStack.isEmpty()) {
+        directoryStack.peek().size += attrs.size();
+      }
+
       return CONTINUE;
     }
 
     @Override
-    public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
-      String absolutePath = dir.toAbsolutePath().toString();
-      int slashCount = (int)absolutePath.chars().filter(c -> c == '/').count();
+    public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
+      DirectoryInfo dirInfo = directoryStack.pop();
+      dirInfo.fileEntity.setSize(dirInfo.size);
 
-      File dirToDb = new File(
-        dir.toAbsolutePath().toString(),
-        0L,
-        "",
-        LocalDateTime.ofInstant(attrs.creationTime().toInstant(), ZoneId.systemDefault()),
-        LocalDateTime.ofInstant(attrs.lastModifiedTime().toInstant(), ZoneId.systemDefault()),
-        true,
-        slashCount
-      );
+      if (!directoryStack.isEmpty()) {
+        directoryStack.peek().size += dirInfo.size;
+      }
 
-      buffer.add(dirToDb);
+      buffer.add(dirInfo.fileEntity);
       batchInsert();
-
+      
       return CONTINUE;
     }
   }
