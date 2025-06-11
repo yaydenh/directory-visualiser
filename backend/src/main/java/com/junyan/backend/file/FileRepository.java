@@ -19,7 +19,7 @@ public interface FileRepository extends JpaRepository<File, Long> {
   @Query(value = """
     SELECT *
     FROM file_entity as f
-    WHERE f.path LIKE :directoryPath || '/%'
+    WHERE f.path LIKE :directoryPath
     AND LENGTH(f.path) - LENGTH(REPLACE(f.path, '/', '')) = :slashCount + 1
     ORDER BY f.is_directory DESC, f.path
   """, nativeQuery = true)

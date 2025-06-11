@@ -11,7 +11,10 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 
 @Entity
-@Table(name = "file_entity", indexes = @Index(name = "path_index", columnList = "path", unique = true))
+@Table(name = "file_entity", indexes = {
+  @Index(name = "path_index", columnList = "path", unique = true),
+  @Index(name = "depth_index", columnList = "depth")
+})
 public class File {
   
   @Id
@@ -37,19 +40,23 @@ public class File {
   @Column(name = "is_directory")
   private boolean isDirectory;
 
+  @Column(name = "depth")
+  private int depth;
+
   public File() {
   }
 
-  public File(String path, Long size, String extension, LocalDateTime created, LocalDateTime lastModified, boolean isDirectory) {
+  public File(String path, Long size, String extension, LocalDateTime created, LocalDateTime lastModified, boolean isDirectory, int depth) {
     this.path = path;
     this.size = size;
     this.extension = extension;
     this.created = created;
     this.lastModified = lastModified;
     this.isDirectory = isDirectory;
+    this.depth = depth;
   }
 
-  public File(Long id, String path, Long size, String extension, LocalDateTime created, LocalDateTime lastModified, boolean isDirectory) {
+  public File(Long id, String path, Long size, String extension, LocalDateTime created, LocalDateTime lastModified, boolean isDirectory, int depth) {
     this.id = id;
     this.path = path;
     this.size = size;
@@ -57,6 +64,7 @@ public class File {
     this.created = created;
     this.lastModified = lastModified;
     this.isDirectory = isDirectory;
+    this.depth = depth;
   }
 
   public Long getId() {
@@ -113,5 +121,13 @@ public class File {
 
   public void setDirectory(boolean isDirectory) {
     this.isDirectory = isDirectory;
+  }
+
+  public int getDepth() {
+    return this.depth;
+  }
+
+  public void setDepth(int depth) {
+    this.depth = depth;
   }
 }

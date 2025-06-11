@@ -87,13 +87,17 @@ public class ScanService {
         extension = filename.substring(i + 1);
       }
 
+      String absolutePath = file.toAbsolutePath().toString();
+      int slashCount = (int)absolutePath.chars().filter(c -> c == '/').count();
+
       File fileToDb = new File(
         file.toAbsolutePath().toString(),
         attrs.size(),
         extension,
         LocalDateTime.ofInstant(attrs.creationTime().toInstant(), ZoneId.systemDefault()),
         LocalDateTime.ofInstant(attrs.lastModifiedTime().toInstant(), ZoneId.systemDefault()),
-        false
+        false,
+        slashCount
       );
 
       buffer.add(fileToDb);
@@ -104,13 +108,17 @@ public class ScanService {
 
     @Override
     public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
+      String absolutePath = dir.toAbsolutePath().toString();
+      int slashCount = (int)absolutePath.chars().filter(c -> c == '/').count();
+
       File dirToDb = new File(
         dir.toAbsolutePath().toString(),
         0L,
         "",
         LocalDateTime.ofInstant(attrs.creationTime().toInstant(), ZoneId.systemDefault()),
         LocalDateTime.ofInstant(attrs.lastModifiedTime().toInstant(), ZoneId.systemDefault()),
-        true
+        true,
+        slashCount
       );
 
       buffer.add(dirToDb);

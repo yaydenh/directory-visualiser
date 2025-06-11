@@ -31,9 +31,12 @@ public class FileDto {
   @NotNull(message = "isDirectory cannot be null")
   private boolean isDirectory;
 
+  @NotNull(message = "depth cannot be null")
+  private int depth;
+
   public FileDto() {};
 
-  public FileDto(Long id, String path, Long size, String extension, LocalDateTime created, LocalDateTime lastModified, boolean isDirectory) {
+  public FileDto(Long id, String path, Long size, String extension, LocalDateTime created, LocalDateTime lastModified, boolean isDirectory, int depth) {
     this.id = id;
     this.path = path;
     this.size = size;
@@ -41,15 +44,17 @@ public class FileDto {
     this.created = created;
     this.lastModified = lastModified;
     this.isDirectory = isDirectory;
+    this.depth = depth;
   }
 
-  public FileDto(String path, Long size, String extension, LocalDateTime created, LocalDateTime lastModified, boolean isDirectory) {
+  public FileDto(String path, Long size, String extension, LocalDateTime created, LocalDateTime lastModified, boolean isDirectory, int depth) {
     this.path = path;
     this.size = size;
     this.extension = extension;
     this.created = created;
     this.lastModified = lastModified;
     this.isDirectory = isDirectory;
+    this.depth = depth;
   }
   
   public Long getId() {
@@ -93,5 +98,11 @@ public class FileDto {
   }
   public void setDirectory(boolean isDirectory) {
     this.isDirectory = isDirectory;
+  }
+  public int getDepth() {
+    return depth;
+  }
+  public void setDepth(int depth) {
+    this.depth = depth;
   }
 }

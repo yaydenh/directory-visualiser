@@ -12,7 +12,8 @@ public class FileMapper {
       file.getExtension(),
       file.getCreated(),
       file.getLastModified(),
-      file.isDirectory()
+      file.isDirectory(),
+      file.getDepth()
     );
   }
 
@@ -23,7 +24,8 @@ public class FileMapper {
       fileDto.getExtension(),
       fileDto.getCreated(),
       fileDto.getLastModified(),
-      fileDto.isDirectory()
+      fileDto.isDirectory(),
+      fileDto.getDepth()
     );
   }
 }

@@ -47,7 +47,7 @@ public class FileService {
     String absolutePath = Paths.get(dirPath).toAbsolutePath().toString();
     int slashCount = (int)absolutePath.chars().filter(c -> c == '/').count();
     try {
-      return fileRepository.findDirectoryChildren(absolutePath, slashCount)
+      return fileRepository.findDirectoryChildren(absolutePath + "/%", slashCount)
         .stream()
         .toList();
     } catch (Exception e) {
