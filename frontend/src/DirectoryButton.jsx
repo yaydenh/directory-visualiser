@@ -7,7 +7,8 @@ import FolderOpenIcon from '@mui/icons-material/FolderOpen';
 
 function DirectoryButton({ directoryId, isOpen, openDirectory, closeDirectory }) {
 
-  function handleClick() {
+  function handleClick(e) {
+    e.stopPropagation();
     if (!isOpen) openDirectory(directoryId);
     else closeDirectory(directoryId);
   }
@@ -18,9 +19,11 @@ function DirectoryButton({ directoryId, isOpen, openDirectory, closeDirectory })
       size='small'
       sx={{ 
         width: '30px',
-        height: '30px',
+        height: '20px',
         '&:focus': { outline: 'none' },
         '&:focus-visible': { outline: 'none' },
+        position: 'relative',
+        top: '-3px'
       }}
     >
       {isOpen ? <FolderOpenIcon /> : <FolderIcon />}

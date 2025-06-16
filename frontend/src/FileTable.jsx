@@ -9,6 +9,7 @@ import DirectoryButton from './DirectoryButton';
 
 function FileTable({ dataReady, root }) {
 
+  const [ selectedRowIndex, setSelectedRowIndex ] = useState(-1);
   const [ columnWidths, setColumnWidths ] = useState([500, 100, 100, 100, 200, 200]);
   const [ resizing, setResizing ] = useState({index: null, startX: 0, startWidth: 0});
   const [ data, setData ] = useState([]);
@@ -136,6 +137,7 @@ function FileTable({ dataReady, root }) {
     const row = data[rowIndex];
     const column = columnMapping[columnIndex];
 
+
     let value = row[column];
     if (column === 'directory') {
       value = value ? "Yes" : "No"
@@ -143,13 +145,22 @@ function FileTable({ dataReady, root }) {
       value = value.split('/').pop();
     }
 
+    const isSelected = rowIndex === selectedRowIndex;
     const isDirectory = columnIndex === 0 && row.directory;
 
     return (
-      <div style={{ ...style, color: 'black', textAlign: 'left', }}>
+      <div
+        style={{
+          ...style,
+          color: 'black',
+          textAlign: 'left',
+          backgroundColor: isSelected ? 'lightblue' : 'transparent',
+        }}
+        onClick={() => setSelectedRowIndex(rowIndex)}
+      >
         <div
           style={{
-            paddingLeft: (columnIndex === 0) * 3 * row.depth,
+            paddingLeft: (columnIndex === 0) * 25 * row.depth,
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap'
