@@ -18,11 +18,29 @@ public interface FileRepository extends JpaRepository<File, Long> {
   
   @Query(value = """
     SELECT *
-    FROM file_entity as f
+    FROM file_entity AS f
     WHERE f.path LIKE :directoryPath
     AND f.depth = :depth
-    ORDER BY f.is_directory DESC, f.path
+    ORDER BY f.is_directory DESC, f.size DESC
   """, nativeQuery = true)
   List<File> findDirectoryChildren(@Param("directoryPath") String directoryPath,
+                                   @Param("depth") int depth);
+
+
+@Query(value = """
+  SELECT f.id AS id, f.size AS size
+  FROM file_entity AS f
+  WHERE f.path = :path
+""", nativeQuery = true)
+FileSizeView getSizeByPath(@Param("path") String path);
+
+@Query(value = """
+  SELECT f.id AS id, f.size AS size, f.path AS path, f.is_directory AS isDirectory
+  FROM file_entity AS f
+  WHERE f.path LIKE :directoryPath
+  AND f.depth = :depth
+  ORDER BY f.size DESC
+  """, nativeQuery = true)
+  List<FileSizeView> getDirectoryChildrenSize(@Param("directoryPath") String directoryPath,
                                    @Param("depth") int depth);
 }

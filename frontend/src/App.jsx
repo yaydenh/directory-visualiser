@@ -7,12 +7,14 @@ import Box from '@mui/material/Box'
 import CircularProgress from '@mui/material/CircularProgress'
 
 import FileTable from './FileTable'
+import TreeMap from './TreeMap'
 
 function App() {
 
-  const [ directory, setDirectory ] = useState("");
+  const [ directory, setDirectory ] = useState('');
   const [ scanning, setScanning ] = useState(false);
   const [ scanSuccess, setScanSuccess ] = useState(false);
+  const [ selectedFile, setSelectedFile ] = useState(null);
 
   function handleTextFieldChange(e) {
     setDirectory(e.target.value);
@@ -27,7 +29,7 @@ function App() {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ directoryPath : directory})
+        body: JSON.stringify({ directoryPath : directory })
       });
       setScanSuccess(false);
       setScanning(true);
@@ -44,7 +46,9 @@ function App() {
       if (!data.inProgress || data.hasError) {
         setScanning(false);
         clearInterval(interval);
-        if (!data.hasError) setScanSuccess(true);
+        if (!data.hasError) {
+          setScanSuccess(true);
+        }
       }
 
     }, 500);
@@ -56,7 +60,7 @@ function App() {
     <Box sx={{height: '100vh', width: '100vw', display: 'flex', flexDirection: 'column', textAlign: 'center'}}>
       <Box sx={{flex: '1', border: '1px solid black', padding: '10px'}}>
         {scanSuccess && (
-          <FileTable dataReady={scanSuccess} root={directory}></FileTable>
+          <FileTable dataReady={scanSuccess} root={directory} setSelectedFile={setSelectedFile}></FileTable>
         )}
         {!scanSuccess && (
           <div>
@@ -78,8 +82,10 @@ function App() {
           </div>
         )}
       </Box>
-      <Box sx={{flex: '1'}}>
+      <Box sx={{flex: '1', border: '1px solid black', padding: '10px'}}>
+        <TreeMap root={directory} dataReady={scanSuccess} selectedFile={selectedFile}>
 
+        </TreeMap>
       </Box>
     </Box>
   )

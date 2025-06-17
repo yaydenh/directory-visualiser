@@ -7,9 +7,9 @@ import AutoSizer from "react-virtualized-auto-sizer";
 
 import DirectoryButton from './DirectoryButton';
 
-function FileTable({ dataReady, root }) {
+function FileTable({ dataReady, root, setSelectedFile }) {
 
-  const [ selectedRowIndex, setSelectedRowIndex ] = useState(-1);
+  const [ selectedFileId, setSelectedFileId ] = useState(null);
   const [ columnWidths, setColumnWidths ] = useState([500, 100, 100, 100, 200, 200]);
   const [ resizing, setResizing ] = useState({index: null, startX: 0, startWidth: 0});
   const [ data, setData ] = useState([]);
@@ -137,7 +137,6 @@ function FileTable({ dataReady, root }) {
     const row = data[rowIndex];
     const column = columnMapping[columnIndex];
 
-
     let value = row[column];
     if (column === 'directory') {
       value = value ? "Yes" : "No"
@@ -145,7 +144,7 @@ function FileTable({ dataReady, root }) {
       value = value.split('/').pop();
     }
 
-    const isSelected = rowIndex === selectedRowIndex;
+    const isSelected = row.id === selectedFileId;
     const isDirectory = columnIndex === 0 && row.directory;
 
     return (
@@ -156,7 +155,10 @@ function FileTable({ dataReady, root }) {
           textAlign: 'left',
           backgroundColor: isSelected ? 'lightblue' : 'transparent',
         }}
-        onClick={() => setSelectedRowIndex(rowIndex)}
+        onClick={() => {
+          setSelectedFileId(row.id);
+          setSelectedFile(row.id); // this one from parent component
+        }}
       >
         <div
           style={{
