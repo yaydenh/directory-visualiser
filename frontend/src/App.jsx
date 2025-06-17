@@ -60,7 +60,7 @@ function App() {
     <Box sx={{height: '100vh', width: '100vw', display: 'flex', flexDirection: 'column', textAlign: 'center'}}>
       <Box sx={{flex: '1', border: '1px solid black', padding: '10px'}}>
         {scanSuccess && (
-          <FileTable dataReady={scanSuccess} root={directory} setSelectedFile={setSelectedFile}></FileTable>
+          <FileTable dataReady={scanSuccess} root={directory} selectedFile={selectedFile} setSelectedFile={setSelectedFile}></FileTable>
         )}
         {!scanSuccess && (
           <div>
@@ -83,7 +83,7 @@ function App() {
         )}
       </Box>
       <Box sx={{flex: '1', border: '1px solid black', padding: '10px'}}>
-        <TreeMap root={directory} dataReady={scanSuccess} selectedFile={selectedFile}>
+        <TreeMap root={directory} dataReady={scanSuccess} selectedFile={selectedFile} setSelectedFile={setSelectedFile}>
 
         </TreeMap>
       </Box>

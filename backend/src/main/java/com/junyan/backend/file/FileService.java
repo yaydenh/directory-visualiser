@@ -54,6 +54,11 @@ public class FileService {
     }
   }
 
+  public List<Long> getDirectoryParents(Long dirId) {
+    String path = fileRepository.getPathById(dirId);
+    return fileRepository.getDirectoryParents(path);
+  }
+
   public File updateFile(File file) {
     File oldFile = fileRepository.getReferenceById(file.getId());
     oldFile.setId(file.getId());

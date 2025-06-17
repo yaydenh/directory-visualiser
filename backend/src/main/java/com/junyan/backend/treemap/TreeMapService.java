@@ -80,6 +80,11 @@ public class TreeMapService {
     );
   }
 
+  public Long getRectFile(int x, int y) {
+    int index = (y * gridWidth) + x;
+    return fileIdGrid[index];
+  }
+
   public void startTreeMap(String root, int height, int width) {
     fileToRect.clear();
 

@@ -2,7 +2,7 @@ import Box from "@mui/material/Box";
 import { createContext, useEffect, useRef, useState } from "react";
 
 
-function TreeMap({ root, dataReady, selectedFile }) {
+function TreeMap({ root, dataReady, selectedFile, setSelectedFile }) {
 
   const [ rgbGrid, setRgbGrid ] = useState([]);
   const ref = useRef();
@@ -20,7 +20,7 @@ function TreeMap({ root, dataReady, selectedFile }) {
 
     (async () => {
       try {
-        await fetch(`${import.meta.env.VITE_APP_API_URL}/treemap?root=${root}&height=${height}&width=${width}`, { method: 'GET' });
+        await fetch(`${import.meta.env.VITE_APP_API_URL}/treemap/generate?root=${root}&height=${height}&width=${width}`, { method: 'GET' });
         setTimeout(() => {}, 5000);
         const res = await fetch(`${import.meta.env.VITE_APP_API_URL}/treemap/colours`, { method: 'GET' });
         const data = await res.json();
@@ -33,16 +33,35 @@ function TreeMap({ root, dataReady, selectedFile }) {
 
   }, [dataReady]);
 
+  // select file when clicking
+  async function handleClick(e) {
+    const canvas = document.getElementById('fileHighlight');
+    const rect = canvas.getBoundingClientRect();
+
+    const x = Math.floor(e.clientX - rect.left);
+    const y = Math.floor(e.clientY - rect.top); 
+
+    try {
+      const res = await fetch(`${import.meta.env.VITE_APP_API_URL}/treemap/lookup?x=${x}&y=${y}`, { method: 'GET' });
+      const fileId = await res.json();
+      // set null to cause rerenders when selecting same id
+      setSelectedFile(null);
+      setTimeout(() => setSelectedFile(fileId), 1);
+    } catch (error) {
+      console.error("Failed to fetch rectangle's file:", error);
+    }
+  }
+
   // highlight selected file on treemap
   useEffect(() => {
     if (!selectedFile) return;
-    
+
     (async () => {
       try {
         const res = await fetch(`${import.meta.env.VITE_APP_API_URL}/treemap/${selectedFile}`, { method: 'GET' });
         const data = await res.json();
 
-        const canvas = document.getElementById("fileHighlight");
+        const canvas = document.getElementById('fileHighlight');
         const ctx = canvas.getContext('2d');
         
         ctx.clearRect(0, 0, width, height);
@@ -105,6 +124,7 @@ function TreeMap({ root, dataReady, selectedFile }) {
       >
       </canvas>
       <canvas id='fileHighlight' width={width} height={height}
+        onClick={handleClick}
         style={{
           width: '100%',
           height: '100%',

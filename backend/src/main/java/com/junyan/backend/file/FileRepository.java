@@ -26,15 +26,14 @@ public interface FileRepository extends JpaRepository<File, Long> {
   List<File> findDirectoryChildren(@Param("directoryPath") String directoryPath,
                                    @Param("depth") int depth);
 
+  @Query(value = """
+    SELECT f.id AS id, f.size AS size
+    FROM file_entity AS f
+    WHERE f.path = :path
+  """, nativeQuery = true)
+  FileSizeView getSizeByPath(@Param("path") String path);
 
-@Query(value = """
-  SELECT f.id AS id, f.size AS size
-  FROM file_entity AS f
-  WHERE f.path = :path
-""", nativeQuery = true)
-FileSizeView getSizeByPath(@Param("path") String path);
-
-@Query(value = """
+  @Query(value = """
   SELECT f.id AS id, f.size AS size, f.path AS path, f.is_directory AS isDirectory
   FROM file_entity AS f
   WHERE f.path LIKE :directoryPath
@@ -43,4 +42,16 @@ FileSizeView getSizeByPath(@Param("path") String path);
   """, nativeQuery = true)
   List<FileSizeView> getDirectoryChildrenSize(@Param("directoryPath") String directoryPath,
                                    @Param("depth") int depth);
+
+  @Query(value = "SELECT path FROM file_entity WHERE id = :id", nativeQuery = true)
+  String getPathById(@Param("id") Long id);
+                                   
+  @Query(value = """
+    SELECT f.id
+    FROM file_entity as f
+    WHERE :directoryPath LIKE f.path || "%"
+    AND f.is_directory = true
+    ORDER BY LENGTH(f.path)
+  """, nativeQuery = true)
+  List<Long> getDirectoryParents(@Param("directoryPath") String directoryPath);
 }

@@ -7,56 +7,53 @@ import AutoSizer from "react-virtualized-auto-sizer";
 
 import DirectoryButton from './DirectoryButton';
 
-function FileTable({ dataReady, root, setSelectedFile }) {
+function FileTable({ dataReady, root, selectedFile, setSelectedFile }) {
 
-  const [ selectedFileId, setSelectedFileId ] = useState(null);
   const [ columnWidths, setColumnWidths ] = useState([500, 100, 100, 100, 200, 200]);
   const [ resizing, setResizing ] = useState({index: null, startX: 0, startWidth: 0});
   const [ data, setData ] = useState([]);
   const gridRef = useRef();
   const columnMapping = ['path', 'directory', 'size', 'extension', 'created', 'lastModified']
 
-  const openDirectory = async (directoryId) => {
-    const directoryIndex = data.findIndex(file => file.id === directoryId);
-    if (directoryIndex === -1) return;  
+  const openDirectory = async (directoryId, currData) => {
+    const directoryIndex = currData.findIndex(file => file.id === directoryId);
+    if (directoryIndex === -1) return currData;  
 
-    const directoryData = data[directoryIndex];
-    if (directoryData.open) return;
+    const directoryData = currData[directoryIndex];
+    if (directoryData.open) return currData;
 
     try {
       const res = await fetch(`${import.meta.env.VITE_APP_API_URL}/files?directory=${directoryData.path}`, { method: 'GET' });
       const childrenData = await res.json();
 
-      const updatedData = [...data];
+      const updatedData = [...currData];
       updatedData[directoryIndex] = { ...directoryData, open: true};
 
-      if (childrenData.length === 0) {
-        setData(updatedData);
-        return;
-      }
+      if (childrenData.length === 0) return updatedData;
 
       childrenData.forEach(file => {
         if (file.directory) file.open = false;
         file.depth = directoryData.depth + 1;
       });
 
-      setData([
+      return [
         ...updatedData.slice(0, directoryIndex + 1),
         ...childrenData,
-        ...data.slice(directoryIndex + 1)
-      ]);
+        ...updatedData.slice(directoryIndex + 1)
+      ];
     } catch (error) {
       console.error('Failed to open directory:', error);
     }
 
+    return currData;
   };
 
-  const closeDirectory = (directoryId) => {
+  const closeDirectory = (directoryId, currData) => {
     const directoryIndex = data.findIndex(file => file.id === directoryId);
-    if (directoryIndex === -1) return;  
+    if (directoryIndex === -1) return currData;  
 
     const directoryData = data[directoryIndex];
-    if (!directoryData.open) return;
+    if (!directoryData.open) return currData;
 
     const lastChildIndex = data.findIndex((file, i) => 
       i > directoryIndex && file.depth <= directoryData.depth
@@ -70,7 +67,7 @@ function FileTable({ dataReady, root, setSelectedFile }) {
       ...data.slice(endIndex)
     ];
 
-    setData(updatedData);
+    return updatedData;
   };
 
   // load root dir initially
@@ -90,6 +87,28 @@ function FileTable({ dataReady, root, setSelectedFile }) {
     })();
 
   }, [dataReady]);
+
+  // scroll grid to selected file
+  useEffect(() => {
+    console.log(selectedFile);
+    if (!selectedFile) return;
+    
+    (async () => {
+      try {
+        const res = await fetch(`${import.meta.env.VITE_APP_API_URL}/files/parents?id=${selectedFile}`, { method: 'GET' });
+        const dirs = await res.json();
+        
+        let newData = data;
+        for (const dir of dirs) {
+          newData = await openDirectory(dir, newData);
+        }
+        setData(newData);
+      } catch (error) {
+        console.error("Failed to get file parents: ", error);
+      }
+    })();
+
+  }, [selectedFile]);
 
   // resizing column widths by dragging
   useEffect(() => {
@@ -144,7 +163,7 @@ function FileTable({ dataReady, root, setSelectedFile }) {
       value = value.split('/').pop();
     }
 
-    const isSelected = row.id === selectedFileId;
+    const isSelected = row.id === selectedFile;
     const isDirectory = columnIndex === 0 && row.directory;
 
     return (
@@ -155,10 +174,7 @@ function FileTable({ dataReady, root, setSelectedFile }) {
           textAlign: 'left',
           backgroundColor: isSelected ? 'lightblue' : 'transparent',
         }}
-        onClick={() => {
-          setSelectedFileId(row.id);
-          setSelectedFile(row.id); // this one from parent component
-        }}
+        onClick={() => setSelectedFile(row.id)}
       >
         <div
           style={{
@@ -169,7 +185,7 @@ function FileTable({ dataReady, root, setSelectedFile }) {
           }}
         >
           {isDirectory && (
-            <DirectoryButton directoryId={row.id} isOpen={row.open} openDirectory={openDirectory} closeDirectory={closeDirectory} />
+            <DirectoryButton directoryId={row.id} data={data} setData={setData} isOpen={row.open} openDirectory={openDirectory} closeDirectory={closeDirectory} />
           )}
           {value}
         </div>

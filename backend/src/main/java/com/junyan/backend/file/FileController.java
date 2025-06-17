@@ -30,7 +30,7 @@ public class FileController {
   }
 
   @GetMapping("/{id}")
-  public ResponseEntity<FileDto> getFile(@PathVariable Long fileId) {
+  public ResponseEntity<FileDto> getFile(@PathVariable("id") Long fileId) {
     Optional<File> file = fileService.getFile(fileId);
 
     if (!file.isPresent()) return ResponseEntity.notFound().build();
@@ -52,6 +52,11 @@ public class FileController {
       .map(opt -> opt.map(fileMapper::toDto).orElse(null))
       .toList();
     return ResponseEntity.ok().body(dtos);
+  }
+
+  @GetMapping("/parents")
+  public ResponseEntity<List<Long>> getDirectoryParents(@RequestParam("id") Long directoryId) {
+    return ResponseEntity.ok().body(fileService.getDirectoryParents(directoryId));
   }
 
   @GetMapping(params = "directory")

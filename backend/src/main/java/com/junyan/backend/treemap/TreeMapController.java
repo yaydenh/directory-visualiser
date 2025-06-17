@@ -14,7 +14,7 @@ public class TreeMapController {
     this.treeMapService = treeMapService;
   }
 
-  @GetMapping("/treemap")
+  @GetMapping("/treemap/generate")
   public ResponseEntity<String> generateTreeMap(@RequestParam String root, 
                                                    @RequestParam int height,
                                                    @RequestParam int width) {
@@ -33,4 +33,9 @@ public class TreeMapController {
     return ResponseEntity.ok().body(r);
   }
 
+  @GetMapping("/treemap/lookup")
+  public ResponseEntity<Long> getRectangleFile(@RequestParam int x, @RequestParam int y) {
+    Long fileId = treeMapService.getRectFile(x, y);
+    return ResponseEntity.ok().body(fileId);
+ }
 }
