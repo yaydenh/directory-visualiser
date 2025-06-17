@@ -12,7 +12,9 @@ function FileTable({ dataReady, root, selectedFile, setSelectedFile }) {
   const [ columnWidths, setColumnWidths ] = useState([500, 100, 100, 100, 200, 200]);
   const [ resizing, setResizing ] = useState({index: null, startX: 0, startWidth: 0});
   const [ data, setData ] = useState([]);
+  const [ selectedIndex, setSelectedIndex ] = useState(null);
   const gridRef = useRef();
+
   const columnMapping = ['path', 'directory', 'size', 'extension', 'created', 'lastModified']
 
   const openDirectory = async (directoryId, currData) => {
@@ -88,9 +90,8 @@ function FileTable({ dataReady, root, selectedFile, setSelectedFile }) {
 
   }, [dataReady]);
 
-  // scroll grid to selected file
+  // open selected files parent directories
   useEffect(() => {
-    console.log(selectedFile);
     if (!selectedFile) return;
     
     (async () => {
@@ -103,12 +104,25 @@ function FileTable({ dataReady, root, selectedFile, setSelectedFile }) {
           newData = await openDirectory(dir, newData);
         }
         setData(newData);
+
+        const selectedFileIndex = newData.findIndex(file => file.id === selectedFile);
+        setSelectedIndex(selectedFileIndex);
       } catch (error) {
         console.error("Failed to get file parents: ", error);
       }
     })();
 
   }, [selectedFile]);
+
+  // scroll to selected file
+  useEffect(() => {
+    if (selectedIndex) {
+      gridRef?.current.scrollToItem({
+        align: 'center',
+        rowIndex: selectedIndex
+      });
+    }
+  }, [selectedIndex]);
 
   // resizing column widths by dragging
   useEffect(() => {
