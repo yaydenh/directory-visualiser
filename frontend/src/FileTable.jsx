@@ -186,6 +186,8 @@ function FileTable({ dataReady, root, selectedFile, setSelectedFile }) {
       value = value ? "Yes" : "No"
     } else if (column === 'path') {
       value = value.split('/').pop();
+    } else if (column === 'created' || column === 'lastModified') {
+      value = value.replace(/-/g, '/').replace('T', ' ').slice(0, 19);
     }
 
     const isSelected = row.id === selectedFile;
