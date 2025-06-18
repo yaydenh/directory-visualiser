@@ -142,12 +142,14 @@ function FileTable({ dataReady, root, selectedFile, setSelectedFile }) {
     };
 
     const handleMouseUp = () => {
+      if (resizing.index === null) return;
+
       // setTimeout because it causes rerenders and interferes with DirectoryButton
       setTimeout(() => {
         setResizing({index: null, startX: 0, startWidth: 0});
       }, 0);
       document.body.style.cursor = 'default';
-      document.body.style.userSelect = 'auto';
+      document.body.style.userSelect = 'text';
     };
 
     window.addEventListener('mousemove', handleMouseMove);
@@ -167,6 +169,14 @@ function FileTable({ dataReady, root, selectedFile, setSelectedFile }) {
   }, [columnWidths]);
 
   const Cell = ({ rowIndex, columnIndex, style }) => {
+
+    function handleClick() {
+      // dont rerender when highlighting text
+      const selection = window.getSelection();
+      if (selection && selection.toString().length > 0) return;
+
+      setSelectedFile(row.id);
+    };
 
     const row = data[rowIndex];
     const column = columnMapping[columnIndex];
@@ -192,15 +202,14 @@ function FileTable({ dataReady, root, selectedFile, setSelectedFile }) {
           textAlign: 'left',
           backgroundColor: isSelected ? 'lightblue' : 'transparent',
         }}
-        onClick={() => setSelectedFile(row.id)}
+        onClick={handleClick}
       >
         {isFirstColumn && row.depth > 0 && (
           <>
             {Array.from({ length : row.depth }).map((_, i) => (
-              <React.Fragment key={i}>
+              <React.Fragment key={rowIndex + ':' + i}>
                 {/* Vertical line under a directory */}
                 <div
-                  key={i}
                   style={{
                     position: 'absolute',
                     left: 25 * i + 14,
@@ -212,7 +221,6 @@ function FileTable({ dataReady, root, selectedFile, setSelectedFile }) {
                 {/* Horizontal line marking end of directory */}
                 {(lastInDir && i >= nextDepth) && (
                   <div
-                    key={i}
                     style={{
                       position: 'absolute',
                       left: 25 * i + 15,
@@ -253,10 +261,11 @@ function FileTable({ dataReady, root, selectedFile, setSelectedFile }) {
 
   return (
     <Box display={'flex'} flexDirection={'column'} sx={{ width: '100%', height: '100%', bgcolor: 'lightgrey'}}>
-      <Box display={'flex'} textAlign={'left'} color={'blue'}>
+      <Box display={'flex'} textAlign={'left'} color={'black'}>
+        {/* Column Headings */}
         {columnMapping.map((col, index) => (
-          <Box key={col} sx={{width: columnWidths[index], height: '20px', position: 'relative' }}>
-            <span>{col}</span>
+          <Box key={col} sx={{width: columnWidths[index], height: '20px', position: 'relative', borderBottom: '1px solid black'}}>
+            <span>{col.charAt(0).toUpperCase() + col.slice(1)}</span>
             {(index != columnMapping.length - 1) && (
               <Box
                 sx={{
