@@ -1,7 +1,9 @@
 package com.junyan.backend.treemap;
 
 import java.nio.file.Paths;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,6 +51,18 @@ public class TreeMapService {
     @Override
     public String toString() {
       return "Rect [x=" + x + ", y=" + y + ", height=" + height + ", width=" + width + "]";
+    }
+  }
+
+  private static class StackFrame {
+    List<Node> children;
+    List<Node> row;
+    double length;
+
+    public StackFrame(List<Node> children, List<Node> row, double length) {
+      this.children = children;
+      this.row = row;
+      this.length = length;
     }
   }
 
@@ -115,9 +129,7 @@ public class TreeMapService {
     List<Node> childNodes = new ArrayList<>();
     for (FileSizeView child : children) {
       double allocatedArea = (double) child.getSize() / rootSize.getSize() * totalArea;
-      if (allocatedArea > 0) {
-        childNodes.add(new Node(child.getId(), allocatedArea, child.getPath(), child.getIsDirectory()));
-      }
+      if (allocatedArea > 1) childNodes.add(new Node(child.getId(), allocatedArea, child.getPath(), child.getIsDirectory()));
     }
 
     currRect = fileToRect.get(rootSize.getId());
@@ -134,24 +146,32 @@ public class TreeMapService {
   }
 
   // https://vanwijk.win.tue.nl/stm.pdf
-  private void squarify(List<Node> children, List<Node> row, double w, int depth) {
-    if (children.isEmpty()) {
-      if (!row.isEmpty()) layoutRow(row);
-      return;
-    }
+  private void squarify(List<Node> children, List<Node> row, double length, int depth) {
 
-    Node c = children.get(0);
-    List<Node> RowPlusC = new ArrayList<>(row);
-    RowPlusC.add(c);
+    Deque<StackFrame> stack = new ArrayDeque<>();
+    stack.push(new StackFrame(children, row, length));
 
-    // if adding c to current row improves aspect ratio, add it
-    if (worst(row, w) > worst(RowPlusC, w)) {
-      squarify(children.subList(1, children.size()), RowPlusC, w, depth + 1);
+    while (!stack.isEmpty()) {
+      StackFrame sf = stack.pop();
 
-    // else start a new row
-    } else {
-      layoutRow(row);
-      squarify(children, new ArrayList<>(), currRect.shortestSide(), depth + 1);
+      if (sf.children.isEmpty()) {
+        if (!sf.row.isEmpty()) layoutRow(sf.row);
+        return;
+      }
+
+      Node c = sf.children.get(0);
+      List<Node> RowPlusC = new ArrayList<>(sf.row);
+      RowPlusC.add(c);
+      
+      // if adding c to current row improves aspect ratio, add it
+      if (worst(sf.row, sf.length) > worst(RowPlusC, sf.length)) {
+        stack.push(new StackFrame(sf.children.subList(1, sf.children.size()), RowPlusC, sf.length));
+
+      // else start a new row
+      } else {
+        layoutRow(sf.row);
+        stack.push(new StackFrame(sf.children, new ArrayList<>(), currRect.shortestSide()));
+      }
     }
   }
 

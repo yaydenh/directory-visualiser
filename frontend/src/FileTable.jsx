@@ -101,6 +101,7 @@ function FileTable({ dataReady, root, selectedFile, setSelectedFile }) {
         
         let newData = data;
         for (const dir of dirs) {
+          if (dir === selectedFile) break;
           newData = await openDirectory(dir, newData);
         }
         setData(newData);

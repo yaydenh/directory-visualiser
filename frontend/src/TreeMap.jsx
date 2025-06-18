@@ -21,7 +21,7 @@ function TreeMap({ root, dataReady, selectedFile, setSelectedFile }) {
     (async () => {
       try {
         await fetch(`${import.meta.env.VITE_APP_API_URL}/treemap/generate?root=${root}&height=${height}&width=${width}`, { method: 'GET' });
-        setTimeout(() => {}, 5000);
+        
         const res = await fetch(`${import.meta.env.VITE_APP_API_URL}/treemap/colours`, { method: 'GET' });
         const data = await res.json();
         setRgbGrid(data);
