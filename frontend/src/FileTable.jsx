@@ -1,5 +1,5 @@
 
-import { Profiler, useEffect, useRef, useState } from 'react';
+import React, { Profiler, useEffect, useRef, useState } from 'react';
 
 import Box from '@mui/material/Box'
 import { VariableSizeGrid  as Grid } from 'react-window'
@@ -180,6 +180,9 @@ function FileTable({ dataReady, root, selectedFile, setSelectedFile }) {
 
     const isSelected = row.id === selectedFile;
     const isDirectory = columnIndex === 0 && row.directory;
+    const isFirstColumn = columnIndex === 0;
+    const nextDepth = rowIndex + 1 === data.length ? 0 : data[rowIndex + 1].depth;
+    const lastInDir = row.depth > nextDepth;
 
     return (
       <div
@@ -191,16 +194,56 @@ function FileTable({ dataReady, root, selectedFile, setSelectedFile }) {
         }}
         onClick={() => setSelectedFile(row.id)}
       >
+        {isFirstColumn && row.depth > 0 && (
+          <>
+            {Array.from({ length : row.depth }).map((_, i) => (
+              <React.Fragment key={i}>
+                {/* Vertical line under a directory */}
+                <div
+                  key={i}
+                  style={{
+                    position: 'absolute',
+                    left: 25 * i + 14,
+                    width: '2px',
+                    height: (lastInDir && i >= nextDepth) ? '75%' : '100%',
+                    backgroundColor: 'grey',
+                  }}
+                />
+                {/* Horizontal line marking end of directory */}
+                {(lastInDir && i >= nextDepth) && (
+                  <div
+                    key={i}
+                    style={{
+                      position: 'absolute',
+                      left: 25 * i + 15,
+                      bottom: '5px',
+                      width: '8px',
+                      height: '2px',
+                      backgroundColor: 'grey',
+                    }}
+                  />
+                )}
+              </React.Fragment>
+            ))}
+          </>
+        )}
         <div
           style={{
-            paddingLeft: (columnIndex === 0) * 25 * row.depth,
+            paddingLeft: isFirstColumn ? 25 * row.depth : 0,
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap'
           }}
         >
           {isDirectory && (
-            <DirectoryButton directoryId={row.id} data={data} setData={setData} isOpen={row.open} openDirectory={openDirectory} closeDirectory={closeDirectory} />
+            <DirectoryButton
+              directoryId={row.id}
+              data={data}
+              setData={setData}
+              isOpen={row.open}
+              openDirectory={openDirectory}
+              closeDirectory={closeDirectory}
+            />
           )}
           {value}
         </div>
