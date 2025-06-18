@@ -9,13 +9,13 @@ import DirectoryButton from './DirectoryButton';
 
 function FileTable({ dataReady, root, selectedFile, setSelectedFile }) {
 
-  const [ columnWidths, setColumnWidths ] = useState([500, 100, 100, 100, 200, 200]);
+  const [ columnWidths, setColumnWidths ] = useState([500, 100, 100, 200, 200]);
   const [ resizing, setResizing ] = useState({index: null, startX: 0, startWidth: 0});
   const [ data, setData ] = useState([]);
   const [ selectedIndex, setSelectedIndex ] = useState(null);
   const gridRef = useRef();
 
-  const columnMapping = ['path', 'directory', 'size', 'extension', 'created', 'lastModified']
+  const columnMapping = ['path', 'size', 'extension', 'created', 'lastModified']
 
   const openDirectory = async (directoryId, currData) => {
     const directoryIndex = currData.findIndex(file => file.id === directoryId);
@@ -182,9 +182,7 @@ function FileTable({ dataReady, root, selectedFile, setSelectedFile }) {
     const column = columnMapping[columnIndex];
 
     let value = row[column];
-    if (column === 'directory') {
-      value = value ? "Yes" : "No"
-    } else if (column === 'path') {
+    if (column === 'path') {
       value = value.split('/').pop();
     } else if (column === 'created' || column === 'lastModified') {
       value = value.replace(/-/g, '/').replace('T', ' ').slice(0, 19);
