@@ -118,10 +118,10 @@ function TreeMap({ root, dataReady, selectedFile, setSelectedFile }) {
         const index = i * width + j;
         const colour = rgbGrid[index] || 0;
 
-        pixels[index * 4 + 0] = (colour >> 16) & 0xff;    //r
-        pixels[index * 4 + 1] = (colour >> 8) & 0xff; //g
-        pixels[index * 4 + 2] = (colour) & 0xff;      //b
-        pixels[index * 4 + 3] = 255;                  //alpha
+        pixels[index * 4 + 0] = (colour >> 16) & 0xff;  //r
+        pixels[index * 4 + 1] = (colour >> 8) & 0xff;   //g
+        pixels[index * 4 + 2] = (colour) & 0xff;        //b
+        pixels[index * 4 + 3] = 255;                    //alpha
       }
     }
 
@@ -153,7 +153,6 @@ function TreeMap({ root, dataReady, selectedFile, setSelectedFile }) {
         <canvas id='treeMap' width={width} height={height}
           style={{
             width: '100%',
-            height: '100%',
             position: 'absolute',
             top: 0,
             left: 0,
@@ -166,7 +165,6 @@ function TreeMap({ root, dataReady, selectedFile, setSelectedFile }) {
           onMouseMove={handleMouseMove}
           style={{
             width: '100%',
-            height: '100%',
             position: 'absolute',
             top: 0,
             left: 0,
