@@ -9,6 +9,8 @@ function TreeMap({ root, dataReady, selectedFile, setSelectedFile }) {
   const [ height, setHeight ] = useState();
   const [ width, setWidth ] = useState();
 
+  const [ hoverPath, setHoverPath ] = useState(null);
+
   useEffect(() => {
     setWidth(ref?.current?.offsetWidth);
     setHeight(ref?.current?.offsetHeight);
@@ -35,6 +37,8 @@ function TreeMap({ root, dataReady, selectedFile, setSelectedFile }) {
 
   // select file when clicking
   async function handleClick(e) {
+    if (!dataReady) return;
+
     const canvas = document.getElementById('fileHighlight');
     const rect = canvas.getBoundingClientRect();
 
@@ -50,7 +54,31 @@ function TreeMap({ root, dataReady, selectedFile, setSelectedFile }) {
     } catch (error) {
       console.error("Failed to fetch rectangle's file:", error);
     }
-  }
+  };
+
+  // show path of hovered file
+  async function handleMouseMove(e) {
+    if (!dataReady) return;
+
+    const canvas = document.getElementById('fileHighlight');
+    const rect = canvas.getBoundingClientRect();
+
+    const x = Math.floor(e.clientX - rect.left);
+    const y = Math.floor(e.clientY - rect.top);
+    
+    try {
+      const resId = await fetch(`${import.meta.env.VITE_APP_API_URL}/treemap/lookup?x=${x}&y=${y}`, { method: 'GET' });
+      const fileId = await resId.json();
+      
+      const resFile = await fetch(`${import.meta.env.VITE_APP_API_URL}/files/${fileId}`, { method: 'GET' });
+      const fileData = await resFile.json();
+
+      setHoverPath(fileData.path);
+
+    } catch (error) {
+      console.error("Failed to fetch rectangle's file path:", error);
+    }
+  };
 
   // highlight selected file on treemap
   useEffect(() => {
@@ -112,29 +140,40 @@ function TreeMap({ root, dataReady, selectedFile, setSelectedFile }) {
         bgcolor: 'lightgrey'
       }}
     >
-      <canvas id='treeMap' width={width} height={height}
+      <div
         style={{
-          width: '100%',
-          height: '100%',
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          zIndex: 0,
+          height: '20px',
+          textAlign: 'left',
+          color: 'black'
         }}
       >
-      </canvas>
-      <canvas id='fileHighlight' width={width} height={height}
-        onClick={handleClick}
-        style={{
-          width: '100%',
-          height: '100%',
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          zIndex: 1,
-        }}
-      >
-      </canvas>
+        {hoverPath}
+      </div>
+      <div style={{flex: 1, position: 'relative'}}>
+        <canvas id='treeMap' width={width} height={height}
+          style={{
+            width: '100%',
+            height: '100%',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            zIndex: 0,
+          }}
+        >
+        </canvas>
+        <canvas id='fileHighlight' width={width} height={height}
+          onClick={handleClick}
+          onMouseMove={handleMouseMove}
+          style={{
+            width: '100%',
+            height: '100%',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            zIndex: 1,
+          }}
+        ></canvas>
+      </div>
     </Box>
   );
 
