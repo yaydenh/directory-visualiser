@@ -121,7 +121,7 @@ function TreeMap({ root, dataReady, selectedFile, setSelectedFile }) {
         pixels[index * 4 + 0] = (colour >> 16) & 0xff;  //r
         pixels[index * 4 + 1] = (colour >> 8) & 0xff;   //g
         pixels[index * 4 + 2] = (colour) & 0xff;        //b
-        pixels[index * 4 + 3] = 255;                    //alpha
+        pixels[index * 4 + 3] = (colour >> 24) & 0xff;  //alpha
       }
     }
 

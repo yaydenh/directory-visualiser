@@ -237,13 +237,24 @@ public class TreeMapService {
     int w = (int)Math.ceil(r.width);
     int h = (int)Math.ceil(r.height);
 
+    // for radial gradient
+    double cx = (int)Math.ceil(r.width / 2);
+    double cy = (int)Math.ceil(r.height / 2);
+    double maxDist = Math.sqrt(cx * cx + cy * cy);
+
     int colour = random.nextInt(0xFFFFFF);
 
     for (int i = 0; i < w; i++) {
       for (int j = 0; j < h; j++) {
+        double dx = i - cx;
+        double dy = j - cy;
+        double dist = Math.sqrt(dx * dx + dy * dy);
+        double factor = Math.pow(dist / maxDist, 0.5);
+        int alpha = (int) Math.round(factor * 255);
+
         int index = xStart + i + (yStart + j) * gridWidth;
         if (index < gridWidth * gridHeight) {
-          rgbGrid[index] = colour;
+          rgbGrid[index] = colour | (alpha << 24);
           fileIdGrid[index] = fileId;
         }
       }
