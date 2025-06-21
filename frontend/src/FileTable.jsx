@@ -185,6 +185,16 @@ function FileTable({ dataReady, root, selectedFile, setSelectedFile }) {
     let value = row[column];
     if (column === 'path') {
       value = value.split('/').pop();
+    } else if (column === 'size') {
+      const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+      let i = 0;
+
+      while (value >= 1000 && i < units.length + 1) {
+        value = value / 1000;
+        i++;
+      }
+
+      value = Math.round(value * 10) / 10 + ' ' + units[i];
     } else if (column === 'created' || column === 'lastModified') {
       value = value.replace(/-/g, '/').replace('T', ' ').slice(0, 19);
     }
@@ -200,7 +210,7 @@ function FileTable({ dataReady, root, selectedFile, setSelectedFile }) {
     return (
       <div
         className={cellClass}
-        style={{...style}}
+        style={{...style, textAlign : isFirstColumn ? 'left' : 'right'}}
         onClick={handleClick}
       >
         {isFirstColumn && row.depth > 0 && (
@@ -250,9 +260,9 @@ function FileTable({ dataReady, root, selectedFile, setSelectedFile }) {
       <Box display='column-heading-container'>
         {/* Column Headings */}
         {columnMapping.map((col, index) => (
-          <div key={col} className='column-heading' style={{width: columnWidths[index], }}>
+          <div key={col} className='column-heading' style={{width: columnWidths[index], textAlign: index > 0 ? 'right' : 'left'}}>
             <span>{col.charAt(0).toUpperCase() + col.slice(1)}</span>
-            {(index != columnMapping.length - 1) && (
+            {(index != columnMapping.length) && (
               <div
                 className='column-resize-box'
                 onMouseDown={e => {
@@ -276,7 +286,7 @@ function FileTable({ dataReady, root, selectedFile, setSelectedFile }) {
             {({ height, width }) => (
               <Grid
                 ref={gridRef}
-                width={width}
+                width={width - 5}
                 height={height - 35}
                 columnCount={6}
                 columnWidth={index => columnWidths[index]}
