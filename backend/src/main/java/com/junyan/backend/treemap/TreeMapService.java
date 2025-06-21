@@ -23,12 +23,14 @@ public class TreeMapService {
     long id;
     double area;
     String path;
+    String extension;
     boolean isDirectory;
 
-    public Node(long id, double area, String path, boolean isDirectory) {
+    public Node(long id, double area, String path, String extension, boolean isDirectory) {
       this.id = id;
       this.area = area;
       this.path = path;
+      this.extension = extension;
       this.isDirectory = isDirectory;
     }
   }
@@ -66,6 +68,7 @@ public class TreeMapService {
     }
   }
 
+  private final Map<String, Integer> extToColour = new HashMap<>();
   private final Map<Long, Rect> fileToRect = new HashMap<>();
   private Rect currRect;
 
@@ -100,6 +103,7 @@ public class TreeMapService {
   }
 
   public void startTreeMap(String root, int height, int width) {
+    extToColour.clear();
     fileToRect.clear();
 
     currRect = new Rect(0, 0, height, width);
@@ -129,7 +133,7 @@ public class TreeMapService {
     List<Node> childNodes = new ArrayList<>();
     for (FileSizeView child : children) {
       double allocatedArea = (double) child.getSize() / rootSize.getSize() * totalArea;
-      if (allocatedArea > 1) childNodes.add(new Node(child.getId(), allocatedArea, child.getPath(), child.getIsDirectory()));
+      if (allocatedArea > 1) childNodes.add(new Node(child.getId(), allocatedArea, child.getPath(), child.getExtension(), child.getIsDirectory()));
     }
 
     currRect = fileToRect.get(rootSize.getId());
@@ -208,7 +212,8 @@ public class TreeMapService {
         fileToRect.put(n.id, rect);
         yOffset += height;
 
-        if (!n.isDirectory) colourRectangle(rect, n.id);
+        extToColour.putIfAbsent(n.extension, random.nextInt(0xFFFFFF));
+        if (!n.isDirectory) colourRectangle(rect, n.id, extToColour.get(n.extension));
       }
 
       currRect = new Rect(currRect.x + width, currRect.y, currRect.height, currRect.width - width);
@@ -224,14 +229,15 @@ public class TreeMapService {
         fileToRect.put(n.id, rect);
         xOffset += width;
 
-        if (!n.isDirectory) colourRectangle(rect, n.id);
+        extToColour.putIfAbsent(n.extension, random.nextInt(0xFFFFFF));
+        if (!n.isDirectory) colourRectangle(rect, n.id, extToColour.get(n.extension));
       }
 
       currRect = new Rect(currRect.x, currRect.y + height, currRect.height - height, currRect.width);
     }
   }
 
-  private void colourRectangle(Rect r, long fileId) {
+  private void colourRectangle(Rect r, long fileId, int colour) {
     int xStart = (int)Math.ceil(r.x);
     int yStart = (int)Math.ceil(r.y);
     int w = (int)Math.ceil(r.width);
@@ -242,7 +248,7 @@ public class TreeMapService {
     double cy = (int)Math.ceil(r.height / 2);
     double maxDist = Math.sqrt(cx * cx + cy * cy);
 
-    int colour = random.nextInt(0xFFFFFF);
+    // int colour = random.nextInt(0xFFFFFF);
 
     for (int i = 0; i < w; i++) {
       for (int j = 0; j < h; j++) {

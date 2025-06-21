@@ -34,7 +34,7 @@ public interface FileRepository extends JpaRepository<File, Long> {
   FileSizeView getSizeByPath(@Param("path") String path);
 
   @Query(value = """
-  SELECT f.id AS id, f.size AS size, f.path AS path, f.is_directory AS isDirectory
+  SELECT f.id AS id, f.size AS size, f.path AS path, f.is_directory AS isDirectory, f.extension AS extension
   FROM file_entity AS f
   WHERE f.path LIKE :directoryPath
   AND f.depth = :depth
