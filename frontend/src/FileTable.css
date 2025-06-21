@@ -1,0 +1,60 @@
+.filetable-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  padding-left: 10px;
+  color: black;
+  text-align: left;
+  background-color: lightgrey;
+  border: 2px solid black;
+}
+
+.column-heading-container {
+  display: flex;
+}
+
+.column-heading {
+  height: 25px;
+  position: relative;
+  margin-bottom: 5px;
+  border-bottom: 1px solid black;
+  font-weight: 500;
+}
+
+.cell {
+  color: black;
+  text-align: left;
+  background-color: transparent;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cell--selected {
+  background-color: lightblue;
+}
+
+.line-vertical {
+  position: absolute;
+  width: 2px;
+  background-color: grey;
+}
+
+.line-horizontal {
+  position: absolute;
+  bottom: 5px;
+  width: 8px;
+  height: 2px;
+  background-color: grey;
+}
+
+.column-resize-box {
+  width: 5;
+  height: 100%;
+  position: absolute;
+  right: 5px;
+  top: 0;
+  color: gray;
+  cursor: col-resize;
+}

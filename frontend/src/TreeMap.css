@@ -1,0 +1,38 @@
+.treemap-container {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background-color: lightgrey;
+  border: 2px solid black;
+}
+
+.hover-path {
+  height: 20px;
+  text-align: left;
+  color: black;
+  font-weight: 500;
+  padding-left: 10px;
+  margin-bottom: 4px;
+}
+
+.canvas-wrapper {
+  flex: 1;
+  position: relative;
+}
+
+.canvas-layer {
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.canvas-base {
+  z-index: 0;
+}
+
+.canvas-overlay {
+  z-index: 1;
+}

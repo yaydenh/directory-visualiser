@@ -1,5 +1,6 @@
 
 import React, { Profiler, useEffect, useRef, useState } from 'react';
+import './FileTable.css'
 
 import Box from '@mui/material/Box'
 import { VariableSizeGrid  as Grid } from 'react-window'
@@ -194,14 +195,12 @@ function FileTable({ dataReady, root, selectedFile, setSelectedFile }) {
     const nextDepth = rowIndex + 1 === data.length ? 0 : data[rowIndex + 1].depth;
     const lastInDir = row.depth > nextDepth;
 
+    const cellClass = `cell ${isSelected ? 'cell--selected' : ''}`
+
     return (
       <div
-        style={{
-          ...style,
-          color: 'black',
-          textAlign: 'left',
-          backgroundColor: isSelected ? 'lightblue' : 'transparent',
-        }}
+        className={cellClass}
+        style={{...style}}
         onClick={handleClick}
       >
         {isFirstColumn && row.depth > 0 && (
@@ -210,24 +209,18 @@ function FileTable({ dataReady, root, selectedFile, setSelectedFile }) {
               <React.Fragment key={rowIndex + ':' + i}>
                 {/* Vertical line under a directory */}
                 <div
+                  className='line-vertical'
                   style={{
-                    position: 'absolute',
                     left: 25 * i + 14,
-                    width: '2px',
                     height: (lastInDir && i >= nextDepth) ? '75%' : '100%',
-                    backgroundColor: 'grey',
                   }}
                 />
                 {/* Horizontal line marking end of directory */}
                 {(lastInDir && i >= nextDepth) && (
                   <div
+                    className='line-horizontal'
                     style={{
-                      position: 'absolute',
                       left: 25 * i + 15,
-                      bottom: '5px',
-                      width: '8px',
-                      height: '2px',
-                      backgroundColor: 'grey',
                     }}
                   />
                 )}
@@ -235,14 +228,7 @@ function FileTable({ dataReady, root, selectedFile, setSelectedFile }) {
             ))}
           </>
         )}
-        <div
-          style={{
-            paddingLeft: isFirstColumn ? 25 * row.depth : 0,
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap'
-          }}
-        >
+        <div style={{ paddingLeft: isFirstColumn ? 25 * row.depth : 0 }}>
           {isDirectory && (
             <DirectoryButton
               directoryId={row.id}
@@ -260,23 +246,15 @@ function FileTable({ dataReady, root, selectedFile, setSelectedFile }) {
   };
 
   return (
-    <Box display={'flex'} flexDirection={'column'} sx={{ width: '100%', height: '100%', bgcolor: 'lightgrey'}}>
-      <Box display={'flex'} textAlign={'left'} color={'black'}>
+    <div className='filetable-container'>
+      <Box display='column-heading-container'>
         {/* Column Headings */}
         {columnMapping.map((col, index) => (
-          <Box key={col} sx={{width: columnWidths[index], height: '20px', position: 'relative', borderBottom: '1px solid black'}}>
+          <div key={col} className='column-heading' style={{width: columnWidths[index], }}>
             <span>{col.charAt(0).toUpperCase() + col.slice(1)}</span>
             {(index != columnMapping.length - 1) && (
-              <Box
-                sx={{
-                  width: 5,
-                  height: '100%',
-                  position: 'absolute',
-                  right: '5px',
-                  top: 0,
-                  color: 'gray',
-                  cursor: 'col-resize',
-                }}
+              <div
+                className='column-resize-box'
                 onMouseDown={e => {
                   setResizing({
                     index,
@@ -286,9 +264,9 @@ function FileTable({ dataReady, root, selectedFile, setSelectedFile }) {
                 }}
               >
                 &#8942;
-              </Box>
+              </div>
             )}
-          </Box>
+          </div>
         ))}
       </Box>
       <Profiler id="Grid" onRender={(id, phase, actualDuration) => {
@@ -299,7 +277,7 @@ function FileTable({ dataReady, root, selectedFile, setSelectedFile }) {
               <Grid
                 ref={gridRef}
                 width={width}
-                height={height - 20}
+                height={height - 35}
                 columnCount={6}
                 columnWidth={index => columnWidths[index]}
                 rowCount={data.length}
@@ -310,7 +288,7 @@ function FileTable({ dataReady, root, selectedFile, setSelectedFile }) {
             )}
           </AutoSizer>
         </Profiler>
-    </Box>
+    </div>
   )
 }
 

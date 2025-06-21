@@ -1,6 +1,6 @@
 import Box from "@mui/material/Box";
 import { createContext, useEffect, useRef, useState } from "react";
-
+import './TreeMap.css';
 
 function TreeMap({ root, dataReady, selectedFile, setSelectedFile }) {
 
@@ -129,52 +129,26 @@ function TreeMap({ root, dataReady, selectedFile, setSelectedFile }) {
   }, [rgbGrid]);
 
   return (
-    <Box
-      ref={ref}
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        position: 'relative',
-        width: '100%',
-        height: '100%',
-        bgcolor: 'lightgrey'
-      }}
-    >
-      <div
-        style={{
-          height: '20px',
-          textAlign: 'left',
-          color: 'black'
-        }}
-      >
-        {hoverPath}
-      </div>
-      <div style={{flex: 1, position: 'relative'}}>
-        <canvas id='treeMap' width={width} height={height}
-          style={{
-            width: '100%',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            zIndex: 0,
-          }}
-        >
+    <div className='treemap-container' style={{opacity: dataReady ? '1' : '0'}}>
+      <div className='hover-path'>{hoverPath}</div>
+      <div ref={ref} className = 'canvas-wrapper'>
+        <canvas
+          id='treeMap'
+          width={width}
+          height={height}
+          className='canvas-layer canvas-base'>
         </canvas>
-        <canvas id='fileHighlight' width={width} height={height}
+        <canvas
+          id='fileHighlight'
+          width={width}
+          height={height}
+          className='canvas-layer canvas-overlay'
           onClick={handleClick}
           onMouseMove={handleMouseMove}
-          style={{
-            width: '100%',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            zIndex: 1,
-          }}
         ></canvas>
       </div>
-    </Box>
+    </div>
   );
-
 }
 
 export default TreeMap;
