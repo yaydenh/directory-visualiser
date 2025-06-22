@@ -9,6 +9,8 @@ public class FileMapper {
       file.getId(),
       file.getPath(),
       file.getSize(),
+      file.getNumItems(),
+      file.getNumFiles(),
       file.getExtension(),
       file.getCreated(),
       file.getLastModified(),
@@ -21,6 +23,8 @@ public class FileMapper {
     return new File(
       fileDto.getPath(),
       fileDto.getSize(),
+      fileDto.getNumItems(),
+      fileDto.getNumFiles(),
       fileDto.getExtension(),
       fileDto.getCreated(),
       fileDto.getLastModified(),

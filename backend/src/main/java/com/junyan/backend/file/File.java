@@ -28,6 +28,12 @@ public class File {
   @Column(name = "size")
   private Long size;
 
+  @Column(name = "numItems")
+  private Integer numItems;
+
+  @Column(name = "numFiles")
+  private Integer numFiles;
+
   @Column(name = "extension")
   private String extension;
 
@@ -46,9 +52,20 @@ public class File {
   public File() {
   }
 
-  public File(String path, Long size, String extension, LocalDateTime created, LocalDateTime lastModified, boolean isDirectory, int depth) {
+  public File(String path,
+              Long size,
+              Integer numItems,
+              Integer numFiles,
+              String extension,
+              LocalDateTime created,
+              LocalDateTime lastModified,
+              boolean
+              isDirectory,
+              int depth) {
     this.path = path;
     this.size = size;
+    this.numItems = numItems;
+    this.numFiles = numFiles;
     this.extension = extension;
     this.created = created;
     this.lastModified = lastModified;
@@ -56,10 +73,21 @@ public class File {
     this.depth = depth;
   }
 
-  public File(Long id, String path, Long size, String extension, LocalDateTime created, LocalDateTime lastModified, boolean isDirectory, int depth) {
+  public File(Long id,
+              String path,
+              Long size,
+              Integer numItems,
+              Integer numFiles,
+              String extension,
+              LocalDateTime created,
+              LocalDateTime lastModified,
+              boolean isDirectory,
+              int depth) {
     this.id = id;
     this.path = path;
     this.size = size;
+    this.numItems = numItems;
+    this.numFiles = numFiles;
     this.extension = extension;
     this.created = created;
     this.lastModified = lastModified;
@@ -89,6 +117,22 @@ public class File {
 
   public void setSize(Long size) {
     this.size = size;
+  }
+
+  public Integer getNumItems() {
+    return numItems;
+  }
+
+  public void setNumItems(Integer numItems) {
+    this.numItems = numItems;
+  }
+
+  public Integer getNumFiles() {
+    return numFiles;
+  }
+
+  public void setNumFiles(Integer numFiles) {
+    this.numFiles = numFiles;
   }
 
   public String getExtension() {

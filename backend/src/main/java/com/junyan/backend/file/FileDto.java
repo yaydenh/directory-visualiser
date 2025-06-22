@@ -14,8 +14,14 @@ public class FileDto {
   private String path;
 
   @NotNull(message = "Size cannot be null")
-  @PositiveOrZero(message = "Size should not be positive or zero")
+  @PositiveOrZero(message = "Size should be positive or zero")
   private Long size;
+
+  @PositiveOrZero(message = "NumItems should be positive or zero")
+  private Integer numItems;
+  
+  @PositiveOrZero(message = "NumFiles should be positive or zero")
+  private Integer numFiles;
 
   @NotNull(message = "Extension cannot be null")
   private String extension;
@@ -36,10 +42,21 @@ public class FileDto {
 
   public FileDto() {};
 
-  public FileDto(Long id, String path, Long size, String extension, LocalDateTime created, LocalDateTime lastModified, boolean isDirectory, int depth) {
+  public FileDto(Long id,
+                 String path,
+                 Long size,
+                 Integer numItems,
+                 Integer numFiles,
+                 String extension,
+                 LocalDateTime created,
+                 LocalDateTime lastModified,
+                 boolean isDirectory,
+                 int depth) {
     this.id = id;
     this.path = path;
     this.size = size;
+    this.numItems = numItems;
+    this.numFiles = numFiles;
     this.extension = extension;
     this.created = created;
     this.lastModified = lastModified;
@@ -47,9 +64,19 @@ public class FileDto {
     this.depth = depth;
   }
 
-  public FileDto(String path, Long size, String extension, LocalDateTime created, LocalDateTime lastModified, boolean isDirectory, int depth) {
+  public FileDto(String path,
+                 Long size,
+                 Integer numItems,
+                 Integer numFiles,
+                 String extension,
+                 LocalDateTime created,
+                 LocalDateTime lastModified,
+                 boolean isDirectory,
+                 int depth) {
     this.path = path;
     this.size = size;
+    this.numItems = numItems;
+    this.numFiles = numFiles;
     this.extension = extension;
     this.created = created;
     this.lastModified = lastModified;
@@ -74,6 +101,18 @@ public class FileDto {
   }
   public void setSize(Long size) {
     this.size = size;
+  }
+  public Integer getNumItems() {
+    return numItems;
+  }
+  public void setNumItems(Integer numItems) {
+    this.numItems = numItems;
+  }
+  public Integer getNumFiles() {
+    return numFiles;
+  }
+  public void setNumFiles(Integer numFiles) {
+    this.numFiles = numFiles;
   }
   public String getExtension() {
     return extension;

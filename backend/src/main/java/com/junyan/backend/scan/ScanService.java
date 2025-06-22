@@ -77,6 +77,8 @@ public class ScanService {
     private static class DirectoryInfo {
       File fileEntity;
       long size = 0;
+      int numDirs = 0;
+      int numFiles = 0;
 
       public DirectoryInfo(File fileEntity) {
         this.fileEntity = fileEntity;
@@ -100,6 +102,8 @@ public class ScanService {
       File dirFile = new File(
         dir.toAbsolutePath().toString(),
         0L,
+        0,
+        0,
         "",
         LocalDateTime.ofInstant(attrs.creationTime().toInstant(), ZoneId.systemDefault()),
         LocalDateTime.ofInstant(attrs.lastModifiedTime().toInstant(), ZoneId.systemDefault()),
@@ -128,6 +132,8 @@ public class ScanService {
       File fileToDb = new File(
         file.toAbsolutePath().toString(),
         attrs.size(),
+        null,
+        null,
         extension,
         LocalDateTime.ofInstant(attrs.creationTime().toInstant(), ZoneId.systemDefault()),
         LocalDateTime.ofInstant(attrs.lastModifiedTime().toInstant(), ZoneId.systemDefault()),
@@ -140,6 +146,7 @@ public class ScanService {
 
       if (!directoryStack.isEmpty()) {
         directoryStack.peek().size += attrs.size();
+        directoryStack.peek().numFiles++;
       }
 
       return CONTINUE;
@@ -149,9 +156,15 @@ public class ScanService {
     public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
       DirectoryInfo dirInfo = directoryStack.pop();
       dirInfo.fileEntity.setSize(dirInfo.size);
+      dirInfo.fileEntity.setNumFiles(dirInfo.numFiles);
+      dirInfo.fileEntity.setNumItems(dirInfo.numFiles + dirInfo.numDirs);
 
+      // propagate to parent dir
       if (!directoryStack.isEmpty()) {
-        directoryStack.peek().size += dirInfo.size;
+        DirectoryInfo parent = directoryStack.peek();
+        parent.size += dirInfo.size;
+        parent.numFiles += dirInfo.numFiles;
+        parent.numDirs += dirInfo.numDirs + 1;
       }
 
       buffer.add(dirInfo.fileEntity);
