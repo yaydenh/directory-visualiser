@@ -102,6 +102,10 @@ public class TreeMapService {
     return fileIdGrid[index];
   }
 
+  public Map<String, Integer> getExtensionColours() {
+    return extToColour;
+  }
+
   public void startTreeMap(String root, int height, int width) {
     extToColour.clear();
     fileToRect.clear();
@@ -212,8 +216,10 @@ public class TreeMapService {
         fileToRect.put(n.id, rect);
         yOffset += height;
 
-        extToColour.putIfAbsent(n.extension, random.nextInt(0xFFFFFF));
-        if (!n.isDirectory) colourRectangle(rect, n.id, extToColour.get(n.extension));
+        if (!n.isDirectory) {
+          extToColour.putIfAbsent(n.extension, random.nextInt(0xFFFFFF));
+          colourRectangle(rect, n.id, extToColour.get(n.extension));
+        }
       }
 
       currRect = new Rect(currRect.x + width, currRect.y, currRect.height, currRect.width - width);
@@ -229,8 +235,10 @@ public class TreeMapService {
         fileToRect.put(n.id, rect);
         xOffset += width;
 
-        extToColour.putIfAbsent(n.extension, random.nextInt(0xFFFFFF));
-        if (!n.isDirectory) colourRectangle(rect, n.id, extToColour.get(n.extension));
+        if (!n.isDirectory) {
+          extToColour.putIfAbsent(n.extension, random.nextInt(0xFFFFFF));
+          colourRectangle(rect, n.id, extToColour.get(n.extension));
+        }
       }
 
       currRect = new Rect(currRect.x, currRect.y + height, currRect.height - height, currRect.width);

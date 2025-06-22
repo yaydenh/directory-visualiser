@@ -8,15 +8,16 @@ import AutoSizer from "react-virtualized-auto-sizer";
 
 import DirectoryButton from './DirectoryButton';
 
-function FileTable({ dataReady, root, selectedFile, setSelectedFile }) {
+function FileTable({ dataReady, root, selectedFile, setSelectedFile, width }) {
 
-  const [ columnWidths, setColumnWidths ] = useState([500, 150, 150, 150, 200, 200]);
+  const [ columnWidths, setColumnWidths ] = useState([500, 130, 130, 130, 200, 200]);
   const columnMapping = ['path', 'size', 'numItems', 'numFiles', 'created', 'lastModified']
 
   const [ resizing, setResizing ] = useState({index: null, startX: 0, startWidth: 0});
   const [ data, setData ] = useState([]);
   const [ selectedIndex, setSelectedIndex ] = useState(null);
   const gridRef = useRef();
+  const headingRef = useRef();
 
   const openDirectory = async (directoryId, currData) => {
     const directoryIndex = currData.findIndex(file => file.id === directoryId);
@@ -183,7 +184,7 @@ function FileTable({ dataReady, root, selectedFile, setSelectedFile }) {
     const column = columnMapping[columnIndex];
 
     let value = row[column];
-    
+
     if (column === 'path') {
       value = value.split('/').pop();
     } else if (column === 'size') {
@@ -257,8 +258,8 @@ function FileTable({ dataReady, root, selectedFile, setSelectedFile }) {
   };
 
   return (
-    <div className='filetable-container'>
-      <Box display='column-heading-container'>
+    <div className='filetable-container' style={{width: width}}>
+      <Box ref={headingRef} className='column-heading-container'>
         {/* Column Headings */}
         {columnMapping.map((col, index) => (
           <div key={col} className='column-heading' style={{width: columnWidths[index], textAlign: index > 0 ? 'right' : 'left'}}>
@@ -289,10 +290,15 @@ function FileTable({ dataReady, root, selectedFile, setSelectedFile }) {
                 ref={gridRef}
                 width={width - 5}
                 height={height - 35}
-                columnCount={6}
+                columnCount={columnMapping.length}
                 columnWidth={index => columnWidths[index]}
                 rowCount={data.length}
                 rowHeight={() => 20}
+                onScroll={({scrollLeft}) => {
+                  if (headingRef.current) {
+                    headingRef.current.scrollLeft = scrollLeft;
+                  }
+                }}
               >
                 {Cell}
               </Grid>

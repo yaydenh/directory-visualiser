@@ -23,7 +23,6 @@ public class FileDto {
   @PositiveOrZero(message = "NumFiles should be positive or zero")
   private Integer numFiles;
 
-  @NotNull(message = "Extension cannot be null")
   private String extension;
 
   @NotNull(message = "Created cannot be null")

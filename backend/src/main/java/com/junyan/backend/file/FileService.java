@@ -59,6 +59,10 @@ public class FileService {
     return fileRepository.getDirectoryParents(path);
   }
 
+  public List<ExtensionCount> getExtensionCounts() {
+    return fileRepository.getExtensionCounts();
+  }
+
   public File updateFile(File file) {
     File oldFile = fileRepository.getReferenceById(file.getId());
     oldFile.setId(file.getId());

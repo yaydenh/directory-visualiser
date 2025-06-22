@@ -1,5 +1,7 @@
 package com.junyan.backend.treemap;
 
+import java.util.Map;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,6 +27,11 @@ public class TreeMapController {
   @GetMapping("/treemap/colours")
   public ResponseEntity<int[]> getPixelColours() {
     return ResponseEntity.ok().body(treeMapService.getRgbGrid());
+  }
+
+  @GetMapping("/treemap/colours/extension")
+  public ResponseEntity<Map<String, Integer>> getExtensionColour() {
+    return ResponseEntity.ok().body(treeMapService.getExtensionColours());
   }
 
   @GetMapping("/treemap/{fileId}")

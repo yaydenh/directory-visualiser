@@ -54,4 +54,13 @@ public interface FileRepository extends JpaRepository<File, Long> {
     ORDER BY LENGTH(f.path)
   """, nativeQuery = true)
   List<Long> getDirectoryParents(@Param("directoryPath") String directoryPath);
+
+  @Query(value = """
+    SELECT extension as extension, COUNT(extension) as count
+    FROM file_entity
+    WHERE extension IS NOT NULL
+    GROUP BY extension
+    ORDER BY count DESC
+  """, nativeQuery = true)
+  List<ExtensionCount> getExtensionCounts();
 }

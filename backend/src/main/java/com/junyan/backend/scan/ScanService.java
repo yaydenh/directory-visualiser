@@ -104,7 +104,7 @@ public class ScanService {
         0L,
         0,
         0,
-        "",
+        null,
         LocalDateTime.ofInstant(attrs.creationTime().toInstant(), ZoneId.systemDefault()),
         LocalDateTime.ofInstant(attrs.lastModifiedTime().toInstant(), ZoneId.systemDefault()),
         true,

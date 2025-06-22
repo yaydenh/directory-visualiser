@@ -8,6 +8,7 @@ import CircularProgress from '@mui/material/CircularProgress'
 
 import FileTable from './FileTable'
 import TreeMap from './TreeMap'
+import ExtensionInfo from './ExtensionInfo'
 
 function App() {
 
@@ -57,10 +58,13 @@ function App() {
   }, [scanning]);
 
   return (
-    <Box sx={{height: '100vh', width: '100vw', display: 'flex', flexDirection: 'column', textAlign: 'center', userSelect: 'none' }}>
+    <Box sx={{height: '100vh', width: '100vw', display: 'flex', flexDirection: 'column', textAlign: 'center' }}>
       <Box sx={{flex: '1', padding: '10px'}}>
         {scanSuccess && (
-          <FileTable dataReady={scanSuccess} root={directory} selectedFile={selectedFile} setSelectedFile={setSelectedFile}></FileTable>
+          <Box sx={{display: 'flex', flexDirection: 'row', height: '100%', width: '100%'}}>
+            <FileTable width={1500} dataReady={scanSuccess} root={directory} selectedFile={selectedFile} setSelectedFile={setSelectedFile}></FileTable>
+            <ExtensionInfo dataReady={scanSuccess}></ExtensionInfo>
+          </Box>
         )}
         {!scanSuccess && (
           <div>
