@@ -2,7 +2,7 @@ import Box from "@mui/material/Box";
 import { createContext, useEffect, useRef, useState } from "react";
 import './TreeMap.css';
 
-function TreeMap({ root, dataReady, selectedFile, setSelectedFile }) {
+function TreeMap({ root, dataReady, selectedFile, setSelectedFile, selectedExtension }) {
 
   const [ rgbGrid, setRgbGrid ] = useState([]);
   const ref = useRef();
@@ -84,15 +84,16 @@ function TreeMap({ root, dataReady, selectedFile, setSelectedFile }) {
   useEffect(() => {
     if (!selectedFile) return;
 
+    const canvas = document.getElementById('fileHighlight');
+    const ctx = canvas.getContext('2d');
+    
+    ctx.clearRect(0, 0, width, height);
+
     (async () => {
       try {
-        const res = await fetch(`${import.meta.env.VITE_APP_API_URL}/treemap/${selectedFile}`, { method: 'GET' });
+        const res = await fetch(`${import.meta.env.VITE_APP_API_URL}/treemap/bounds/file?fileId=${selectedFile}`, { method: 'GET' });
         const data = await res.json();
 
-        const canvas = document.getElementById('fileHighlight');
-        const ctx = canvas.getContext('2d');
-        
-        ctx.clearRect(0, 0, width, height);
         ctx.beginPath();
         ctx.lineWidth = '5';
         ctx.strokeStyle = 'white';
@@ -103,6 +104,36 @@ function TreeMap({ root, dataReady, selectedFile, setSelectedFile }) {
       }
     })();
   }, [selectedFile]);
+
+  // highlight selected extension
+  useEffect(() => {
+    if (!selectedExtension) return;
+
+    const canvas = document.getElementById('fileHighlight');
+    const ctx = canvas.getContext('2d');
+    
+    ctx.clearRect(0, 0, width, height);
+
+    (async () => {
+      try {
+        const res = await fetch(`${import.meta.env.VITE_APP_API_URL}/treemap/bounds/extension?extension=${selectedExtension}`, { method: 'GET' });
+        const data = await res.json();
+
+        ctx.lineWidth = '2';
+        ctx.strokeStyle = 'white';
+
+        data.forEach((rect) => {
+          ctx.beginPath();
+          ctx.rect(rect.x, rect.y, rect.width, rect.height);
+          ctx.stroke();
+        });
+
+      } catch (error) {
+        console.error("Failed to fetch extension bounds: ", error);
+      }
+    })();
+
+  }, [selectedExtension])
 
   // render treemap on canvas
   useEffect(() => {

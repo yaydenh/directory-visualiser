@@ -5,7 +5,7 @@ import './FileTable.css'
 import { VariableSizeGrid  as Grid } from 'react-window'
 import AutoSizer from "react-virtualized-auto-sizer";
 
-function ExtensionInfo({ dataReady }) {
+function ExtensionInfo({ dataReady, selectedExtension, setSelectedExtension }) {
 
   const [ columnWidths, setColumnWidths ] = useState([ 100, 100, 80 ]);
   const [ resizing, setResizing ] = useState({index: null, startX: 0, startWidth: 0});
@@ -34,7 +34,7 @@ function ExtensionInfo({ dataReady }) {
         });
 
         setData(extensionsData);
-        }, 5000);
+        }, 15000);
 
       } catch (error) {
 
@@ -94,17 +94,32 @@ function ExtensionInfo({ dataReady }) {
     let value = extensionData[column];
 
     const isColourCol = column === 'colour';
+    const isSelected = extensionData.extension === selectedExtension;
     
-    const backgroundColor = isColourCol && true
+    const backgroundColor = isColourCol && typeof value === 'number'
       ? `rgb(${(value >> 16) & 0xff}, ${(value >> 8) & 0xff}, ${value & 0xff})`
       : 'lightgray';
 
     if (isColourCol) value = '';
 
-    const className = isColourCol ? 'colour-cell' : '';
+    const cellClass = `cell ${isSelected ? 'cell--selected' : ''}`
 
     return (
-      <div className={className} style={{...style, backgroundColor }}>
+      <div
+        className={cellClass}
+        style={{...style}}
+        onClick={() => {
+          setSelectedExtension(extensionData.extension);
+        }}
+      >
+        {isColourCol && (
+          <div
+            className='colour-cell'
+            style={{
+              background: isColourCol ? `radial-gradient(circle, white 0%, ${backgroundColor} 100%)` : ''
+            }}>
+          </div>
+        )}
         {value}
       </div>
     );

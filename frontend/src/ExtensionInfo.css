@@ -8,5 +8,6 @@
 }
 
 .colour-cell {
-  border: 3px solid lightgray;
+  margin-top: 5px;
+  height: 15px;
 }

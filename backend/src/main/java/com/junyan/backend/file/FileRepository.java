@@ -59,8 +59,16 @@ public interface FileRepository extends JpaRepository<File, Long> {
     SELECT extension as extension, COUNT(extension) as count
     FROM file_entity
     WHERE extension IS NOT NULL
+    AND extension != ""
     GROUP BY extension
     ORDER BY count DESC
   """, nativeQuery = true)
   List<ExtensionCount> getExtensionCounts();
+
+  @Query(value = """
+    SELECT id
+    FROM file_entity
+    WHERE extension = :extension
+  """, nativeQuery=true)
+  List<Long> getFileIdsByExtension(@Param("extension") String extension);
 }

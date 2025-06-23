@@ -16,6 +16,7 @@ function App() {
   const [ scanning, setScanning ] = useState(false);
   const [ scanSuccess, setScanSuccess ] = useState(false);
   const [ selectedFile, setSelectedFile ] = useState(null);
+  const [ selectedExtension, setSelectedExtension ] = useState(null);
 
   function handleTextFieldChange(e) {
     setDirectory(e.target.value);
@@ -63,7 +64,7 @@ function App() {
         {scanSuccess && (
           <Box sx={{display: 'flex', flexDirection: 'row', height: '100%', width: '100%'}}>
             <FileTable width={1500} dataReady={scanSuccess} root={directory} selectedFile={selectedFile} setSelectedFile={setSelectedFile}></FileTable>
-            <ExtensionInfo dataReady={scanSuccess}></ExtensionInfo>
+            <ExtensionInfo dataReady={scanSuccess} selectedExtension={selectedExtension} setSelectedExtension={setSelectedExtension}></ExtensionInfo>
           </Box>
         )}
         {!scanSuccess && (
@@ -87,7 +88,7 @@ function App() {
         )}
       </Box>
       <Box sx={{flex: '1', padding: '10px'}}>
-        <TreeMap root={directory} dataReady={scanSuccess} selectedFile={selectedFile} setSelectedFile={setSelectedFile}>
+        <TreeMap root={directory} dataReady={scanSuccess} selectedFile={selectedFile} setSelectedFile={setSelectedFile} selectedExtension={selectedExtension}>
         </TreeMap>
       </Box>
     </Box>

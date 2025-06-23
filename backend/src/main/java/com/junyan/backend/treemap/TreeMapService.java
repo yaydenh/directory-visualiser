@@ -7,6 +7,7 @@ import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Random;
 
 import org.springframework.stereotype.Service;
@@ -89,12 +90,22 @@ public class TreeMapService {
 
   public RectDto getFileRect(Long fileId) {
     Rect rect = fileToRect.get(fileId);
+    if (rect == null) return null;
     return new RectDto(
       (int)Math.round(rect.x),
       (int)Math.round(rect.y),
       (int)Math.round(rect.height),
       (int)Math.round(rect.width)
     );
+  }
+
+  public List<RectDto> getExtensionRects(String extension) {
+    List<Long> fileIds = fileRepository.getFileIdsByExtension(extension);
+    return fileIds
+           .stream()
+           .map(this::getFileRect)
+           .filter(Objects::nonNull)
+           .toList();
   }
 
   public Long getRectFile(int x, int y) {

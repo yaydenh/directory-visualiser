@@ -10,8 +10,8 @@ import DirectoryButton from './DirectoryButton';
 
 function FileTable({ dataReady, root, selectedFile, setSelectedFile, width }) {
 
-  const [ columnWidths, setColumnWidths ] = useState([500, 130, 130, 130, 200, 200]);
-  const columnMapping = ['path', 'size', 'numItems', 'numFiles', 'created', 'lastModified']
+  const [ columnWidths, setColumnWidths ] = useState([400, 130, 130, 130, 130, 200, 200]);
+  const columnMapping = ['path', 'size', 'numItems', 'numFiles', 'numSubdirs', 'created', 'lastModified']
 
   const [ resizing, setResizing ] = useState({index: null, startX: 0, startWidth: 0});
   const [ data, setData ] = useState([]);
@@ -121,7 +121,7 @@ function FileTable({ dataReady, root, selectedFile, setSelectedFile, width }) {
   useEffect(() => {
     if (selectedIndex) {
       gridRef?.current.scrollToItem({
-        align: 'center',
+        align: 'auto',
         rowIndex: selectedIndex
       });
     }
@@ -197,6 +197,8 @@ function FileTable({ dataReady, root, selectedFile, setSelectedFile, width }) {
       }
 
       value = Math.round(value * 10) / 10 + ' ' + units[i]; 
+    } else if (column === 'numSubdirs') {
+      value = row.numItems - row.numFiles;
     } else if (column === 'created' || column === 'lastModified') {
       value = value.replace(/-/g, '/').replace('T', ' ').slice(0, 19);
     }

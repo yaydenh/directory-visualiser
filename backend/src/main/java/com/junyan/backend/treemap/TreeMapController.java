@@ -1,5 +1,6 @@
 package com.junyan.backend.treemap;
 
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
@@ -34,9 +35,15 @@ public class TreeMapController {
     return ResponseEntity.ok().body(treeMapService.getExtensionColours());
   }
 
-  @GetMapping("/treemap/{fileId}")
-  public ResponseEntity<RectDto> getFileBounds(@PathVariable Long fileId) {
+  @GetMapping("/treemap/bounds/file")
+  public ResponseEntity<RectDto> getFileBounds(@RequestParam Long fileId) {
     RectDto r = treeMapService.getFileRect(fileId);
+    return ResponseEntity.ok().body(r);
+  }
+
+  @GetMapping("/treemap/bounds/extension")
+  public ResponseEntity<List<RectDto>> getExtensionBounds(@RequestParam String extension) {
+    List<RectDto> r = treeMapService.getExtensionRects(extension);
     return ResponseEntity.ok().body(r);
   }
 
