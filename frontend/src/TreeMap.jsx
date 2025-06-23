@@ -1,9 +1,14 @@
-import Box from "@mui/material/Box";
-import { createContext, useEffect, useRef, useState } from "react";
+
+import { useEffect, useRef, useState } from "react";
 import './TreeMap.css';
+import CircularProgress from "@mui/material/CircularProgress";
+import LinearProgress from "@mui/material/LinearProgress";
 
-function TreeMap({ root, dataReady, selectedFile, setSelectedFile, selectedExtension }) {
+function TreeMap({ root, dataReady, selectedFile, setSelectedFile, selectedExtension, setTreeMapComplete }) {
 
+  const [ treeMapProcessing, setTreeMapProcessing ] = useState(false);
+  const [ treeMapReady, setTreeMapReady ] = useState(false);
+  
   const [ rgbGrid, setRgbGrid ] = useState([]);
   const ref = useRef();
   const [ height, setHeight ] = useState();
@@ -11,33 +16,68 @@ function TreeMap({ root, dataReady, selectedFile, setSelectedFile, selectedExten
 
   const [ hoverPath, setHoverPath ] = useState(null);
 
+  // calc height for canvas size
   useEffect(() => {
     setWidth(ref?.current?.offsetWidth);
     setHeight(ref?.current?.offsetHeight);
   }, []);
 
-  // get treemap
+  // process treemap
   useEffect(() => {
     if (!dataReady) return;
+    if (treeMapProcessing) return;
 
     (async () => {
       try {
-        await fetch(`${import.meta.env.VITE_APP_API_URL}/treemap/generate?root=${root}&height=${height}&width=${width}`, { method: 'GET' });
-        
+        await fetch(`${import.meta.env.VITE_APP_API_URL}/treemap/start?root=${root}&height=${height}&width=${width}`, { method: 'POST' });
+        setTreeMapProcessing(true);
+        setTreeMapReady(false);
+        setTreeMapComplete(false);
+      } catch (error) {
+        console.error("Failed to generate treemap: ", err);
+      }
+    })();
+  }, [dataReady]);
+
+  // check when tree map is finished processing
+  useEffect(() => {
+    if (!treeMapProcessing) return;
+
+    const interval = setInterval(async () => {
+      const res = await fetch(`${import.meta.env.VITE_APP_API_URL}/treemap/status`, { method: 'GET' });
+      const data = await res.json();
+
+      if (!data.isProcessing) {
+        setTreeMapProcessing(false);
+        if (!data.hasError) {
+          setTreeMapReady(true);
+          setTreeMapComplete(true);
+        }
+        clearInterval(interval);
+      }
+    }, 500);
+
+    return () => clearInterval(interval);
+  }, [treeMapProcessing]);
+
+  // get treemap
+  useEffect(() => {
+    if (!treeMapReady) return;
+
+    (async () => {
+      try {
         const res = await fetch(`${import.meta.env.VITE_APP_API_URL}/treemap/colours`, { method: 'GET' });
         const data = await res.json();
         setRgbGrid(data);
       } catch (error) {
         console.error("Failed to fetch treemap: ", err);
       }
-
     })();
-
-  }, [dataReady]);
+  }, [treeMapReady]);
 
   // select file when clicking
   async function handleClick(e) {
-    if (!dataReady) return;
+    if (!treeMapReady) return;
 
     const canvas = document.getElementById('fileHighlight');
     const rect = canvas.getBoundingClientRect();
@@ -58,7 +98,7 @@ function TreeMap({ root, dataReady, selectedFile, setSelectedFile, selectedExten
 
   // show path of hovered file
   async function handleMouseMove(e) {
-    if (!dataReady) return;
+    if (!treeMapReady) return;
 
     const canvas = document.getElementById('fileHighlight');
     const rect = canvas.getBoundingClientRect();
@@ -163,20 +203,26 @@ function TreeMap({ root, dataReady, selectedFile, setSelectedFile, selectedExten
     <div className='treemap-container' style={{opacity: dataReady ? '1' : '0'}}>
       <div className='hover-path'>{hoverPath}</div>
       <div ref={ref} className = 'canvas-wrapper'>
-        <canvas
-          id='treeMap'
-          width={width}
-          height={height}
-          className='canvas-layer canvas-base'>
-        </canvas>
-        <canvas
-          id='fileHighlight'
-          width={width}
-          height={height}
-          className='canvas-layer canvas-overlay'
-          onClick={handleClick}
-          onMouseMove={handleMouseMove}
-        ></canvas>
+        {treeMapReady ? (
+          <>
+            <canvas
+              id='treeMap'
+              width={width}
+              height={height}
+              className='canvas-layer canvas-base'>
+            </canvas>
+            <canvas
+              id='fileHighlight'
+              width={width}
+              height={height}
+              className='canvas-layer canvas-overlay'
+              onClick={handleClick}
+              onMouseMove={handleMouseMove}
+            ></canvas>
+          </>
+        ) : (
+          <LinearProgress sx={{height: 10}}/>
+        )}
       </div>
     </div>
   );

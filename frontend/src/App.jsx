@@ -15,6 +15,7 @@ function App() {
   const [ directory, setDirectory ] = useState('');
   const [ scanning, setScanning ] = useState(false);
   const [ scanSuccess, setScanSuccess ] = useState(false);
+  const [ treeMapComplete, setTreeMapComplete ] = useState(false);
   const [ selectedFile, setSelectedFile ] = useState(null);
   const [ selectedExtension, setSelectedExtension ] = useState(null);
 
@@ -63,8 +64,19 @@ function App() {
       <Box sx={{flex: '1', padding: '10px'}}>
         {scanSuccess && (
           <Box sx={{display: 'flex', flexDirection: 'row', height: '100%', width: '100%'}}>
-            <FileTable width={1500} dataReady={scanSuccess} root={directory} selectedFile={selectedFile} setSelectedFile={setSelectedFile}></FileTable>
-            <ExtensionInfo dataReady={scanSuccess} selectedExtension={selectedExtension} setSelectedExtension={setSelectedExtension}></ExtensionInfo>
+            <FileTable
+              width={1500}
+              dataReady={scanSuccess}
+              root={directory}
+              selectedFile={selectedFile}
+              setSelectedFile={setSelectedFile}
+            />
+            <ExtensionInfo
+              dataReady={scanSuccess}
+              selectedExtension={selectedExtension}
+              setSelectedExtension={setSelectedExtension}
+              treeMapReady={treeMapComplete}
+            />
           </Box>
         )}
         {!scanSuccess && (
@@ -88,7 +100,14 @@ function App() {
         )}
       </Box>
       <Box sx={{flex: '1', padding: '10px'}}>
-        <TreeMap root={directory} dataReady={scanSuccess} selectedFile={selectedFile} setSelectedFile={setSelectedFile} selectedExtension={selectedExtension}>
+        <TreeMap
+          root={directory}
+          dataReady={scanSuccess}
+          selectedFile={selectedFile}
+          setSelectedFile={setSelectedFile}
+          selectedExtension={selectedExtension}
+          setTreeMapComplete={setTreeMapComplete}
+        >
         </TreeMap>
       </Box>
     </Box>

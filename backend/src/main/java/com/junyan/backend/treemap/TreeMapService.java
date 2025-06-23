@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.springframework.stereotype.Service;
 
@@ -69,6 +71,11 @@ public class TreeMapService {
     }
   }
 
+  private ExecutorService executor = Executors.newSingleThreadExecutor();
+
+  private volatile boolean isProcessing = false;
+  private volatile Throwable processingError = null;
+
   private final Map<String, Integer> extToColour = new HashMap<>();
   private final Map<Long, Rect> fileToRect = new HashMap<>();
   private Rect currRect;
@@ -84,8 +91,30 @@ public class TreeMapService {
     this.fileRepository = fileRepository;
   }
 
+  // public void reset() {
+  //   processingFinished = false;
+  //   processingError = null;
+
+  //   extToColour.clear();
+  //   fileToRect.clear();
+
+  //   currRect = null;
+  //   gridHeight = 0;
+  //   gridWidth = 0;
+  //   rgbGrid = null;
+  //   fileIdGrid = null;
+  // }
+
   public int[] getRgbGrid() {
     return rgbGrid;
+  }
+
+  public boolean isProcessing() {
+    return isProcessing;
+  }
+
+  public Throwable getProcessingError() {
+    return processingError;
   }
 
   public RectDto getFileRect(Long fileId) {
@@ -118,6 +147,10 @@ public class TreeMapService {
   }
 
   public void startTreeMap(String root, int height, int width) {
+    System.out.println("hi");
+    isProcessing = true;
+    processingError = null;
+
     extToColour.clear();
     fileToRect.clear();
 
@@ -127,11 +160,20 @@ public class TreeMapService {
     rgbGrid = new int[height * width];
     fileIdGrid = new long[height * width];
 
-    String absolutePath = Paths.get(root).toAbsolutePath().toString();
-    FileSizeView rootSize = fileRepository.getSizeByPath(absolutePath);
+    executor.execute(() -> {
+      try {
+        String absolutePath = Paths.get(root).toAbsolutePath().toString();
+        FileSizeView rootSize = fileRepository.getSizeByPath(absolutePath);
 
-    fileToRect.put(rootSize.getId(), currRect);
-    generateTreeMap(root, height, width);
+        fileToRect.put(rootSize.getId(), currRect);
+        generateTreeMap(root, height, width);
+      } catch (Exception e) {
+        processingError = e;
+      } finally {
+        System.out.println("done");
+        isProcessing = false;;
+      }
+    });
   }
 
   private void generateTreeMap(String root, double height, double width) {

@@ -4,8 +4,9 @@ import './FileTable.css'
 
 import { VariableSizeGrid  as Grid } from 'react-window'
 import AutoSizer from "react-virtualized-auto-sizer";
+import LinearProgress from '@mui/material/LinearProgress';
 
-function ExtensionInfo({ dataReady, selectedExtension, setSelectedExtension }) {
+function ExtensionInfo({ dataReady, selectedExtension, setSelectedExtension, treeMapReady }) {
 
   const [ columnWidths, setColumnWidths ] = useState([ 100, 100, 80 ]);
   const [ resizing, setResizing ] = useState({index: null, startX: 0, startWidth: 0});
@@ -16,32 +17,27 @@ function ExtensionInfo({ dataReady, selectedExtension, setSelectedExtension }) {
   const gridRef = useRef();
 
   useEffect(() => {
-    if (!dataReady) return;
+    if (!treeMapReady) return;
 
     (async () => {
       try {
-        setTimeout(async () => {
         const dataRes = await fetch(`${import.meta.env.VITE_APP_API_URL}/files/extensions`, { method: 'GET' });
         const extensionsData = await dataRes.json();
 
         const colourRes = await fetch(`${import.meta.env.VITE_APP_API_URL}/treemap/colours/extension`, { method: 'GET' });
         const colourData = await colourRes.json();
 
-        console.log(colourData);  
-
         extensionsData.forEach((row) => {
           row.colour = colourData[row.extension];
         });
 
         setData(extensionsData);
-        }, 15000);
-
       } catch (error) {
 
       }
     })();
 
-  }, [dataReady]);
+  }, [treeMapReady]);
 
   // resizing column widths by dragging
   useEffect(() => {
@@ -149,22 +145,25 @@ function ExtensionInfo({ dataReady, selectedExtension, setSelectedExtension }) {
           </div>
         ))}
       </div>
-      <AutoSizer>
-        {({height, width}) => (
-          <Grid                
-            ref={gridRef}
-            width={width - 5}
-            height={height - 35}
-            columnCount={columnMapping.length}
-            columnWidth={index => columnWidths[index]}
-            rowCount={data.length}
-            rowHeight={() => 20}
-          >
-            {Cell}
-          </Grid>
-        )}
-      </AutoSizer>
-
+      {treeMapReady ? (
+        <AutoSizer>
+          {({height, width}) => (
+            <Grid                
+              ref={gridRef}
+              width={width - 5}
+              height={height - 35}
+              columnCount={columnMapping.length}
+              columnWidth={index => columnWidths[index]}
+              rowCount={data.length}
+              rowHeight={() => 20}
+            >
+              {Cell}
+            </Grid>
+          )}
+        </AutoSizer>
+      ) : (
+        <LinearProgress sx={{height : 10}} />
+      )}
     </div>
   );
 }
