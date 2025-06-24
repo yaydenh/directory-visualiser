@@ -147,7 +147,6 @@ public class TreeMapService {
   }
 
   public void startTreeMap(String root, int height, int width) {
-    System.out.println("hi");
     isProcessing = true;
     processingError = null;
 
@@ -170,7 +169,6 @@ public class TreeMapService {
       } catch (Exception e) {
         processingError = e;
       } finally {
-        System.out.println("done");
         isProcessing = false;;
       }
     });

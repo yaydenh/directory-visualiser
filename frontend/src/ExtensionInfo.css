@@ -4,6 +4,7 @@
   text-align: left;
   overflow-x: hidden;
   border: 2px solid black;
+  border-left: none;
   background-color: lightgray;
 }
 

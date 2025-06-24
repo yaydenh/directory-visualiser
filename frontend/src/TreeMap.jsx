@@ -46,8 +46,8 @@ function TreeMap({ root, dataReady, selectedFile, setSelectedFile, selectedExten
     const interval = setInterval(async () => {
       const res = await fetch(`${import.meta.env.VITE_APP_API_URL}/treemap/status`, { method: 'GET' });
       const data = await res.json();
-
-      if (!data.isProcessing) {
+      console.log(data);
+      if (!data.processing) {
         setTreeMapProcessing(false);
         if (!data.hasError) {
           setTreeMapReady(true);

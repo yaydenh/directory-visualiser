@@ -8,14 +8,30 @@ import LinearProgress from '@mui/material/LinearProgress';
 
 function ExtensionInfo({ dataReady, selectedExtension, setSelectedExtension, treeMapReady }) {
 
-  const [ columnWidths, setColumnWidths ] = useState([ 100, 100, 80 ]);
+  const [ columnWidths, setColumnWidths ] = useState([ 100, 100, 80, 200 ]);
   const [ resizing, setResizing ] = useState({index: null, startX: 0, startWidth: 0});
-  const columnMapping = ['extension', 'count', 'colour'];
+  const columnMapping = ['extension', 'count', 'colour', 'description'];
   const headingRef = useRef();
 
   const [ data, setData ] = useState([]);
   const gridRef = useRef();
 
+  const [ fileTypes, setFileTypes ] = useState({});
+
+  // load extension-to-description json file
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch('/extensions.final.json');
+        const data = await res.json();
+        setFileTypes(data);
+      } catch (error) {
+        console.error('Failed to fetch filetypes:', error);
+      }
+    })();
+  }, []);
+
+  // fetch extension data when ready
   useEffect(() => {
     if (!treeMapReady) return;
 
@@ -29,11 +45,12 @@ function ExtensionInfo({ dataReady, selectedExtension, setSelectedExtension, tre
 
         extensionsData.forEach((row) => {
           row.colour = colourData[row.extension];
+          row.description = fileTypes?.['.' + row.extension]?.description;
         });
 
         setData(extensionsData);
       } catch (error) {
-
+        console.error('Failed to fetch extension data:', error);
       }
     })();
 
@@ -156,6 +173,11 @@ function ExtensionInfo({ dataReady, selectedExtension, setSelectedExtension, tre
               columnWidth={index => columnWidths[index]}
               rowCount={data.length}
               rowHeight={() => 20}
+              onScroll={({scrollLeft}) => {
+                if (headingRef.current) {
+                  headingRef.current.scrollLeft = scrollLeft;
+                }
+              }}
             >
               {Cell}
             </Grid>

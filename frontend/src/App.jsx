@@ -65,7 +65,7 @@ function App() {
         {scanSuccess && (
           <Box sx={{display: 'flex', flexDirection: 'row', height: '100%', width: '100%'}}>
             <FileTable
-              width={1500}
+              width={1400}
               dataReady={scanSuccess}
               root={directory}
               selectedFile={selectedFile}
