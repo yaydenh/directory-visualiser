@@ -1,10 +1,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import './TreeMap.css';
-import CircularProgress from "@mui/material/CircularProgress";
 import LinearProgress from "@mui/material/LinearProgress";
 
-function TreeMap({ root, dataReady, selectedFile, setSelectedFile, selectedExtension, setTreeMapComplete }) {
+function TreeMap({ root, selectedFile, setSelectedFile, selectedExtension, setTreeMapComplete }) {
 
   const [ treeMapProcessing, setTreeMapProcessing ] = useState(false);
   const [ treeMapReady, setTreeMapReady ] = useState(false);
@@ -16,20 +15,15 @@ function TreeMap({ root, dataReady, selectedFile, setSelectedFile, selectedExten
 
   const [ hoverPath, setHoverPath ] = useState(null);
 
-  // calc height for canvas size
   useEffect(() => {
+    // calc height for canvas size
     setWidth(ref?.current?.offsetWidth);
     setHeight(ref?.current?.offsetHeight);
-  }, []);
 
-  // process treemap
-  useEffect(() => {
-    if (!dataReady) return;
-    if (treeMapProcessing) return;
-
+    // start generating treemap
     (async () => {
       try {
-        await fetch(`${import.meta.env.VITE_APP_API_URL}/treemap/start?root=${root}&height=${height}&width=${width}`, { method: 'POST' });
+        await fetch(`${import.meta.env.VITE_APP_API_URL}/treemap/start?root=${root}&height=${ref?.current?.offsetHeight}&width=${ref?.current?.offsetWidth}`, { method: 'POST' });
         setTreeMapProcessing(true);
         setTreeMapReady(false);
         setTreeMapComplete(false);
@@ -37,7 +31,7 @@ function TreeMap({ root, dataReady, selectedFile, setSelectedFile, selectedExten
         console.error("Failed to generate treemap: ", err);
       }
     })();
-  }, [dataReady]);
+  }, []);
 
   // check when tree map is finished processing
   useEffect(() => {
@@ -200,7 +194,7 @@ function TreeMap({ root, dataReady, selectedFile, setSelectedFile, selectedExten
   }, [rgbGrid]);
 
   return (
-    <div className='treemap-container' style={{opacity: dataReady ? '1' : '0'}}>
+    <div className='treemap-container'>
       <div className='hover-path'>{hoverPath}</div>
       <div ref={ref} className = 'canvas-wrapper'>
         {treeMapReady ? (

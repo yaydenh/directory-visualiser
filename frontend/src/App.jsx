@@ -9,6 +9,7 @@ import CircularProgress from '@mui/material/CircularProgress'
 import FileTable from './FileTable'
 import TreeMap from './TreeMap'
 import ExtensionInfo from './ExtensionInfo'
+import ControlPanel from './ControlPanel'
 
 function App() {
 
@@ -27,6 +28,7 @@ function App() {
     if (action === 'delete') {
       await fetch(`${import.meta.env.VITE_APP_API_URL}/files`, { method: 'DELETE' });
     } else if (action === 'scan') {
+      await fetch(`${import.meta.env.VITE_APP_API_URL}/files`, { method: 'DELETE' });
       await fetch(`${import.meta.env.VITE_APP_API_URL}/scan`, {
         method: 'POST',
         headers: {
@@ -60,57 +62,61 @@ function App() {
   }, [scanning]);
 
   return (
-    <Box sx={{height: '100vh', width: '100vw', display: 'flex', flexDirection: 'column', textAlign: 'center' }}>
-      <Box sx={{flex: '1', padding: '10px'}}>
-        {scanSuccess && (
-          <Box sx={{display: 'flex', flexDirection: 'row', height: '100%', width: '100%'}}>
-            <FileTable
-              width={1400}
-              dataReady={scanSuccess}
-              root={directory}
+    <div className='screen'>
+      {!scanSuccess ? (
+        <div className='input-container'>
+          <p style={{fontWeight: 500}}>Please input directory path:</p>
+          <TextField label='Directory Path' variant='outlined' onChange={handleTextFieldChange}/>
+          <Box m={2}>
+            <Button variant='outlined' onClick={() => handleClick('scan')} size='small'>
+              Scan Directory
+            </Button>
+          </Box>
+          <Box m={2}>
+            <Button variant='outlined' onClick={() => handleClick('delete')} size='small'>
+              Clear Database
+            </Button>
+          </Box>
+          {scanning && (
+            <CircularProgress sx={{position: 'absolute'}}/>
+          )}
+        </div>
+      ) : (
+        <>
+          <div className='top-half'>
+              <FileTable
+                width={1400}
+                dataReady={scanSuccess}
+                root={directory}
+                selectedFile={selectedFile}
+                setSelectedFile={setSelectedFile}
+              />
+              <ExtensionInfo
+                dataReady={scanSuccess}
+                selectedExtension={selectedExtension}
+                setSelectedExtension={setSelectedExtension}
+                treeMapReady={treeMapComplete}
+              />
+          </div>
+          <div className='controls-box'>
+            <ControlPanel
               selectedFile={selectedFile}
               setSelectedFile={setSelectedFile}
             />
-            <ExtensionInfo
-              dataReady={scanSuccess}
-              selectedExtension={selectedExtension}
-              setSelectedExtension={setSelectedExtension}
-              treeMapReady={treeMapComplete}
-            />
-          </Box>
-        )}
-        {!scanSuccess && (
-          <div>
-            <p style={{fontWeight: 500}}>Please input directory path:</p>
-            <TextField label='Directory Path' variant='outlined' onChange={handleTextFieldChange}/>
-            <Box m={2}>
-              <Button variant='outlined' onClick={() => handleClick('scan')} size='small'>
-                Scan Directory
-              </Button>
-            </Box>
-            <Box m={2}>
-              <Button variant='outlined' onClick={() => handleClick('delete')} size='small'>
-                Clear Database
-              </Button>
-            </Box>
-            {scanning && (
-              <CircularProgress />
-            )}
           </div>
-        )}
-      </Box>
-      <Box sx={{flex: '1', padding: '10px'}}>
-        <TreeMap
-          root={directory}
-          dataReady={scanSuccess}
-          selectedFile={selectedFile}
-          setSelectedFile={setSelectedFile}
-          selectedExtension={selectedExtension}
-          setTreeMapComplete={setTreeMapComplete}
-        >
-        </TreeMap>
-      </Box>
-    </Box>
+          <div className='bottom-half'>
+            <TreeMap
+              root={directory}
+              selectedFile={selectedFile}
+              setSelectedFile={setSelectedFile}
+              selectedExtension={selectedExtension}
+              setTreeMapComplete={setTreeMapComplete}
+            >
+            </TreeMap>
+          </div>
+        </>
+      )}
+    </div>
   )
 }
 

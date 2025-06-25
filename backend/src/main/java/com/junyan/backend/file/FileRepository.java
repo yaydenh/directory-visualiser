@@ -51,6 +51,7 @@ public interface FileRepository extends JpaRepository<File, Long> {
     FROM file_entity as f
     WHERE :directoryPath LIKE f.path || "%"
     AND f.is_directory = true
+    AND LENGTH(f.path) < LENGTH(:directoryPath)
     ORDER BY LENGTH(f.path)
   """, nativeQuery = true)
   List<Long> getDirectoryParents(@Param("directoryPath") String directoryPath);

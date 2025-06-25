@@ -147,6 +147,8 @@ public class TreeMapService {
   }
 
   public void startTreeMap(String root, int height, int width) {
+    if (isProcessing) return;
+    
     isProcessing = true;
     processingError = null;
 
