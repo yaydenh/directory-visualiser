@@ -16,7 +16,7 @@ function App() {
   const [ directory, setDirectory ] = useState('');
   const [ scanning, setScanning ] = useState(false);
   const [ scanSuccess, setScanSuccess ] = useState(false);
-  const [ treeMapComplete, setTreeMapComplete ] = useState(false);
+  const [ treeMapReady, setTreeMapReady ] = useState(false);
   const [ selectedFile, setSelectedFile ] = useState(null);
   const [ selectedExtension, setSelectedExtension ] = useState(null);
 
@@ -95,22 +95,25 @@ function App() {
                 dataReady={scanSuccess}
                 selectedExtension={selectedExtension}
                 setSelectedExtension={setSelectedExtension}
-                treeMapReady={treeMapComplete}
+                treeMapReady={treeMapReady}
               />
           </div>
           <div className='controls-box'>
             <ControlPanel
               selectedFile={selectedFile}
               setSelectedFile={setSelectedFile}
+              treeMapReady={treeMapReady}
+              setTreeMapReady={setTreeMapReady}
             />
           </div>
           <div className='bottom-half'>
             <TreeMap
               root={directory}
+              treeMapReady={treeMapReady}
+              setTreeMapReady={setTreeMapReady}
               selectedFile={selectedFile}
               setSelectedFile={setSelectedFile}
               selectedExtension={selectedExtension}
-              setTreeMapComplete={setTreeMapComplete}
             >
             </TreeMap>
           </div>

@@ -3,10 +3,9 @@ import { useEffect, useRef, useState } from "react";
 import './TreeMap.css';
 import LinearProgress from "@mui/material/LinearProgress";
 
-function TreeMap({ root, selectedFile, setSelectedFile, selectedExtension, setTreeMapComplete }) {
+function TreeMap({ root, treeMapReady, setTreeMapReady, selectedFile, setSelectedFile, selectedExtension, setTreeMapComplete }) {
 
   const [ treeMapProcessing, setTreeMapProcessing ] = useState(false);
-  const [ treeMapReady, setTreeMapReady ] = useState(false);
   
   const [ rgbGrid, setRgbGrid ] = useState([]);
   const ref = useRef();
@@ -20,18 +19,23 @@ function TreeMap({ root, selectedFile, setSelectedFile, selectedExtension, setTr
     setWidth(ref?.current?.offsetWidth);
     setHeight(ref?.current?.offsetHeight);
 
+    if (treeMapReady) return;
+
+    const canvas = document.getElementById('fileHighlight');
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, width, height);
+
     // start generating treemap
     (async () => {
       try {
         await fetch(`${import.meta.env.VITE_APP_API_URL}/treemap/start?root=${root}&height=${ref?.current?.offsetHeight}&width=${ref?.current?.offsetWidth}`, { method: 'POST' });
         setTreeMapProcessing(true);
         setTreeMapReady(false);
-        setTreeMapComplete(false);
       } catch (error) {
         console.error("Failed to generate treemap: ", err);
       }
     })();
-  }, [root]);
+  }, [treeMapReady]);
 
   // check when tree map is finished processing
   useEffect(() => {

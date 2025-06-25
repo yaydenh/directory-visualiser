@@ -2,7 +2,7 @@ import Button from '@mui/material/Button';
 import './ControlPanel.css'
 import { useEffect, useState } from 'react';
 
-function ControlPanel({ selectedFile, setSelectedFile }) {
+function ControlPanel({ selectedFile, setSelectedFile, treeMapReady, setTreeMapReady }) {
 
   const [ parentId, setParentId ] = useState(null);
 
@@ -31,8 +31,12 @@ function ControlPanel({ selectedFile, setSelectedFile }) {
 
   }, [selectedFile]);
 
-  async function handleClickSelectParent() {
+  function handleClickSelectParent() {
     setSelectedFile(parentId);
+  }
+
+  function handleClickRemakeTreeMap() {
+    setTreeMapReady(false);
   }
 
   return (
@@ -42,6 +46,12 @@ function ControlPanel({ selectedFile, setSelectedFile }) {
         onClick={handleClickSelectParent}
       >
         Select Parent
+      </Button>
+      <Button 
+        disabled={!treeMapReady}
+        onClick={handleClickRemakeTreeMap}
+      >
+        Remake Treemap
       </Button>
     </div>
   )
