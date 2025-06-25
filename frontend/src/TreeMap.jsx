@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import './TreeMap.css';
 import LinearProgress from "@mui/material/LinearProgress";
 
-function TreeMap({ root, treeMapReady, setTreeMapReady, selectedFile, setSelectedFile, selectedExtension, setTreeMapComplete }) {
+function TreeMap({ root, treeMapReady, setTreeMapReady, selectedFile, setSelectedFile, selectedExtension }) {
 
   const [ treeMapProcessing, setTreeMapProcessing ] = useState(false);
   
@@ -35,7 +35,7 @@ function TreeMap({ root, treeMapReady, setTreeMapReady, selectedFile, setSelecte
         console.error("Failed to generate treemap: ", err);
       }
     })();
-  }, [treeMapReady]);
+  }, [treeMapReady, root]);
 
   // check when tree map is finished processing
   useEffect(() => {
@@ -49,7 +49,6 @@ function TreeMap({ root, treeMapReady, setTreeMapReady, selectedFile, setSelecte
         setTreeMapProcessing(false);
         if (!data.hasError) {
           setTreeMapReady(true);
-          setTreeMapComplete(true);
         }
         clearInterval(interval);
       }
@@ -145,7 +144,7 @@ function TreeMap({ root, treeMapReady, setTreeMapReady, selectedFile, setSelecte
         console.error("Failed to fetch file bounds: ", error);
       }
     })();
-  }, [selectedFile]);
+  }, [selectedFile, treeMapReady]);
 
   // highlight selected extension
   useEffect(() => {

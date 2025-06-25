@@ -18,11 +18,19 @@ public class TreeMapController {
   }
 
   @PostMapping("/treemap/start")
-  public ResponseEntity<String> generateTreeMap(@RequestParam String root, 
+  public ResponseEntity<String> generateTreeMap(@RequestParam Long root, 
                                                    @RequestParam int height,
                                                    @RequestParam int width) {
-    treeMapService.startTreeMap(root, height, width);                                              
+    treeMapService.startTreeMap(root, height, width, true);                                              
     return ResponseEntity.accepted().body("Treemap processing started");
+  }
+
+  @PostMapping("/treemap/zoom")
+  public ResponseEntity<String> zoomTreeMap(@RequestParam Long root, 
+                                                   @RequestParam int height,
+                                                   @RequestParam int width) {
+    treeMapService.startTreeMap(root, height, width, false);                                              
+    return ResponseEntity.accepted().body("Treemap zoom started");
   }
 
   @GetMapping("/treemap/status")

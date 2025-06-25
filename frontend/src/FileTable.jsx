@@ -8,7 +8,7 @@ import AutoSizer from "react-virtualized-auto-sizer";
 
 import DirectoryButton from './DirectoryButton';
 
-function FileTable({ dataReady, root, selectedFile, setSelectedFile, width }) {
+function FileTable({ root, dataReady, selectedFile, setSelectedFile, width, zoomDirectory }) {
 
   const [ columnWidths, setColumnWidths ] = useState([400, 130, 130, 130, 130, 200, 200]);
   const columnMapping = ['path', 'size', 'numItems', 'numFiles', 'numSubdirs', 'created', 'lastModified']
@@ -80,7 +80,7 @@ function FileTable({ dataReady, root, selectedFile, setSelectedFile, width }) {
 
     (async () => {
       try {
-        const res = await fetch(`${import.meta.env.VITE_APP_API_URL}/files/by-path?path=${root}`, { method: 'GET' });
+        const res = await fetch(`${import.meta.env.VITE_APP_API_URL}/files/${root}`, { method: 'GET' });
         const directoryData = await res.json();
         directoryData.open = false;
         directoryData.depth = 0;
@@ -204,12 +204,15 @@ function FileTable({ dataReady, root, selectedFile, setSelectedFile, width }) {
     }
 
     const isSelected = row.id === selectedFile;
+    const isZoomedDir = row.id === zoomDirectory;
     const isDirectory = columnIndex === 0 && row.directory;
     const isFirstColumn = columnIndex === 0;
     const nextDepth = rowIndex + 1 === data.length ? 0 : data[rowIndex + 1].depth;
     const lastInDir = row.depth > nextDepth;
 
-    const cellClass = `cell ${isSelected ? 'cell--selected' : ''}`
+    let cellClass = 'cell'
+    cellClass += `${isSelected ? ' cell--selected' : ''}`
+    cellClass += `${isZoomedDir ? ' cell--zoomed' : ''}`
 
     return (
       <div
@@ -249,6 +252,7 @@ function FileTable({ dataReady, root, selectedFile, setSelectedFile, width }) {
               data={data}
               setData={setData}
               isOpen={row.open}
+              isZoomed={isZoomedDir}
               openDirectory={openDirectory}
               closeDirectory={closeDirectory}
             />

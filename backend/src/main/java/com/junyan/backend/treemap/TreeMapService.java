@@ -146,13 +146,13 @@ public class TreeMapService {
     return extToColour;
   }
 
-  public void startTreeMap(String root, int height, int width) {
+  public void startTreeMap(Long rootId, int height, int width, boolean resetColours) {
     if (isProcessing) return;
     
     isProcessing = true;
     processingError = null;
 
-    extToColour.clear();
+    if (resetColours) extToColour.clear();
     fileToRect.clear();
 
     currRect = new Rect(0, 0, height, width);
@@ -163,11 +163,11 @@ public class TreeMapService {
 
     executor.execute(() -> {
       try {
-        String absolutePath = Paths.get(root).toAbsolutePath().toString();
+        String absolutePath = fileRepository.getPathById(rootId);
         FileSizeView rootSize = fileRepository.getSizeByPath(absolutePath);
 
         fileToRect.put(rootSize.getId(), currRect);
-        generateTreeMap(root, height, width);
+        generateTreeMap(absolutePath, height, width);
       } catch (Exception e) {
         processingError = e;
       } finally {
@@ -308,8 +308,6 @@ public class TreeMapService {
     double cx = (int)Math.ceil(r.width / 2);
     double cy = (int)Math.ceil(r.height / 2);
     double maxDist = Math.sqrt(cx * cx + cy * cy);
-
-    // int colour = random.nextInt(0xFFFFFF);
 
     for (int i = 0; i < w; i++) {
       for (int j = 0; j < h; j++) {

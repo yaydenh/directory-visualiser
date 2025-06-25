@@ -1,48 +1,81 @@
-import Button from '@mui/material/Button';
+
 import './ControlPanel.css'
 import { useEffect, useState } from 'react';
 
-function ControlPanel({ selectedFile, setSelectedFile, treeMapReady, setTreeMapReady }) {
+import Button from '@mui/material/Button';
+import ZoomInIcon from '@mui/icons-material/ZoomIn';
+import ZoomOutIcon from '@mui/icons-material/ZoomOut';
+import FindReplaceIcon from '@mui/icons-material/FindReplace';
+import RefreshIcon from '@mui/icons-material/Refresh';
 
-  const [ parentId, setParentId ] = useState(null);
+function ControlPanel({ root, selectedFile, setSelectedFile, treeMapReady, setTreeMapReady, zoomDirectory, setZoomDirectory }) {
+
+  const [ parentIds, setParentIds ] = useState(null);
 
   // get selected file's parent id
   useEffect(() => {
     if (selectedFile === null) {
-      setParentId(null);
+      setParentIds(null);
       return;
     }
     
     (async () => {
       try {
-        const res = await fetch(`${import.meta.env.VITE_APP_API_URL}/files/parents?id=${selectedFile}`, { method: 'GET' });
-        const parentIds = await res.json();
+        const parentsRes = await fetch(`${import.meta.env.VITE_APP_API_URL}/files/parents?id=${selectedFile}`, { method: 'GET' });
+        const parentIdsData = await parentsRes.json();
 
-        if (parentIds.length > 0) {
-          setParentId(parentIds[parentIds.length - 1]);
+        const selectedRes = await fetch(`${import.meta.env.VITE_APP_API_URL}/files/${selectedFile}`, { method: 'GET' });
+        const selectedFileData = await selectedRes.json();
+        if (selectedFileData.directory) parentIdsData.push(selectedFile);
+
+        if (parentIdsData.length > 0) {
+          setParentIds(parentIdsData);
         } else {
-          setParentId(null);
+          setParentIds(null);
         }
 
       } catch (error) {
-        console.error("Failed to get parent: ", error);
+        console.error("Failed to get parents: ", error);
       }
     })();
-
   }, [selectedFile]);
 
   function handleClickSelectParent() {
-    setSelectedFile(parentId);
+    setSelectedFile(parentIds[parentIds.length - 1]);
   }
 
   function handleClickRemakeTreeMap() {
     setTreeMapReady(false);
   }
 
+  async function handleClickZoom(action) {
+    if (action === 'reset') {
+      setZoomDirectory(root);
+      return;
+    }
+
+    try {
+      const currZoomIndex = parentIds.indexOf(zoomDirectory);
+      if (currZoomIndex === -1) return;
+
+      let nextZoomIndex = currZoomIndex;
+      if (action === 'in') nextZoomIndex++;
+      if (action === 'out') nextZoomIndex--;
+
+      if (nextZoomIndex < 0 || nextZoomIndex >= parentIds.length) return;
+
+      setZoomDirectory(parentIds[nextZoomIndex]);
+
+    } catch (error) {
+      console.error("Failed to zoom in:", error);
+    }
+  }
+
+
   return (
     <div className='controls-container'>
       <Button 
-        disabled={parentId === null}
+        disabled={parentIds === null}
         onClick={handleClickSelectParent}
       >
         Select Parent
@@ -52,6 +85,28 @@ function ControlPanel({ selectedFile, setSelectedFile, treeMapReady, setTreeMapR
         onClick={handleClickRemakeTreeMap}
       >
         Remake Treemap
+        <RefreshIcon/>
+      </Button>
+      <Button 
+        disabled={!treeMapReady}
+        onClick={() => handleClickZoom('in')}
+      >
+        Zoom In
+        <ZoomInIcon/>
+      </Button>
+      <Button 
+        disabled={!treeMapReady}
+        onClick={() => handleClickZoom('out')}
+      >
+        Zoom Out
+        <ZoomOutIcon/>
+      </Button>
+      <Button 
+        disabled={!treeMapReady}
+        onClick={() => handleClickZoom('reset')}
+      >
+        Reset Zoom
+        <FindReplaceIcon/>
       </Button>
     </div>
   )

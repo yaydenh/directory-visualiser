@@ -13,15 +13,18 @@ import ControlPanel from './ControlPanel'
 
 function App() {
 
-  const [ directory, setDirectory ] = useState('');
+  const [ root, setRoot ] = useState(null);
+  const [ rootPath, setRootPath ] = useState('');
   const [ scanning, setScanning ] = useState(false);
   const [ scanSuccess, setScanSuccess ] = useState(false);
   const [ treeMapReady, setTreeMapReady ] = useState(false);
+
   const [ selectedFile, setSelectedFile ] = useState(null);
   const [ selectedExtension, setSelectedExtension ] = useState(null);
+  const [ zoomDirectory, setZoomDirectory ] = useState(null);
 
   function handleTextFieldChange(e) {
-    setDirectory(e.target.value);
+    setRootPath(e.target.value);
   }
 
   async function handleClick(action) {
@@ -34,7 +37,7 @@ function App() {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ directoryPath : directory })
+        body: JSON.stringify({ directoryPath : rootPath })
       });
       setScanSuccess(false);
       setScanning(true);
@@ -52,6 +55,10 @@ function App() {
         setScanning(false);
         clearInterval(interval);
         if (!data.hasError) {
+          const res = await fetch(`${import.meta.env.VITE_APP_API_URL}/files/by-path?path=${rootPath}`, { method: 'GET' });
+          const data = await res.json();
+          setRoot(data.id);
+          setZoomDirectory(data.id);
           setScanSuccess(true);
         }
       }
@@ -85,11 +92,12 @@ function App() {
         <>
           <div className='top-half'>
               <FileTable
+                root={root}
                 width={1400}
                 dataReady={scanSuccess}
-                root={directory}
                 selectedFile={selectedFile}
                 setSelectedFile={setSelectedFile}
+                zoomDirectory={zoomDirectory}
               />
               <ExtensionInfo
                 dataReady={scanSuccess}
@@ -100,15 +108,18 @@ function App() {
           </div>
           <div className='controls-box'>
             <ControlPanel
+              root={root}
               selectedFile={selectedFile}
               setSelectedFile={setSelectedFile}
               treeMapReady={treeMapReady}
               setTreeMapReady={setTreeMapReady}
+              zoomDirectory={zoomDirectory}
+              setZoomDirectory={setZoomDirectory}
             />
           </div>
           <div className='bottom-half'>
             <TreeMap
-              root={directory}
+              root={zoomDirectory}
               treeMapReady={treeMapReady}
               setTreeMapReady={setTreeMapReady}
               selectedFile={selectedFile}
