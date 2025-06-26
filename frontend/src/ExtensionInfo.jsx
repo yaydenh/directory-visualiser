@@ -110,7 +110,7 @@ function ExtensionInfo({ dataReady, selectedExtension, setSelectedExtension, tre
     const isSelected = extensionData.extension === selectedExtension;
     
     const backgroundColor = isColourCol && typeof value === 'number'
-      ? `rgb(${(value >> 16) & 0xff}, ${(value >> 8) & 0xff}, ${value & 0xff})`
+      ? `rgb(${(value >> 24) & 0xff}, ${(value >> 16) & 0xff}, ${(value >> 8) & 0xff})`
       : 'lightgray';
 
     if (isColourCol) value = '';

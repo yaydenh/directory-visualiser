@@ -11,6 +11,7 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 function ControlPanel({ root, selectedFile, setSelectedFile, treeMapReady, setTreeMapReady, zoomDirectory, setZoomDirectory }) {
 
   const [ parentIds, setParentIds ] = useState(null);
+  const [ selectedIsDir, setSelectedIsDir ] = useState();
 
   // get selected file's parent id
   useEffect(() => {
@@ -27,6 +28,7 @@ function ControlPanel({ root, selectedFile, setSelectedFile, treeMapReady, setTr
         const selectedRes = await fetch(`${import.meta.env.VITE_APP_API_URL}/files/${selectedFile}`, { method: 'GET' });
         const selectedFileData = await selectedRes.json();
         if (selectedFileData.directory) parentIdsData.push(selectedFile);
+        setSelectedIsDir(selectedFileData.directory);
 
         if (parentIdsData.length > 0) {
           setParentIds(parentIdsData);
@@ -51,6 +53,10 @@ function ControlPanel({ root, selectedFile, setSelectedFile, treeMapReady, setTr
   async function handleClickZoom(action) {
     if (action === 'reset') {
       setZoomDirectory(root);
+      return;
+    }
+    if (action === 'selected') {
+      setZoomDirectory(selectedFile);
       return;
     }
 
@@ -99,6 +105,13 @@ function ControlPanel({ root, selectedFile, setSelectedFile, treeMapReady, setTr
         onClick={() => handleClickZoom('out')}
       >
         Zoom Out
+        <ZoomOutIcon/>
+      </Button>
+      <Button 
+        disabled={!selectedIsDir}
+        onClick={() => handleClickZoom('selected')}
+      >
+        Zoom To Selected
         <ZoomOutIcon/>
       </Button>
       <Button 

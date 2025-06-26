@@ -270,7 +270,7 @@ public class TreeMapService {
         yOffset += height;
 
         if (!n.isDirectory) {
-          extToColour.putIfAbsent(n.extension, random.nextInt(0xFFFFFF));
+          extToColour.putIfAbsent(n.extension, randomColour());
           colourRectangle(rect, n.id, extToColour.get(n.extension));
         }
       }
@@ -289,13 +289,22 @@ public class TreeMapService {
         xOffset += width;
 
         if (!n.isDirectory) {
-          extToColour.putIfAbsent(n.extension, random.nextInt(0xFFFFFF));
+          extToColour.putIfAbsent(n.extension, randomColour());
           colourRectangle(rect, n.id, extToColour.get(n.extension));
         }
       }
 
       currRect = new Rect(currRect.x, currRect.y + height, currRect.height - height, currRect.width);
     }
+  }
+
+  private int randomColour() {
+    // generate darker colours only
+    int r = random.nextInt(128);
+    int g = random.nextInt(128);
+    int b = random.nextInt(128);
+    int colour = (r << 24) | (g << 16) | (b << 8);
+    return colour;
   }
 
   private void colourRectangle(Rect r, long fileId, int colour) {
@@ -319,7 +328,7 @@ public class TreeMapService {
 
         int index = xStart + i + (yStart + j) * gridWidth;
         if (index < gridWidth * gridHeight) {
-          rgbGrid[index] = colour | (alpha << 24);
+          rgbGrid[index] = colour | alpha;
           fileIdGrid[index] = fileId;
         }
       }

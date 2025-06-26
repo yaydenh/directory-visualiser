@@ -190,10 +190,10 @@ function TreeMap({ root, treeMapReady, setTreeMapReady, selectedFile, setSelecte
         const index = i * width + j;
         const colour = rgbGrid[index] || 0;
 
-        pixels[index * 4 + 0] = (colour >> 16) & 0xff;  //r
-        pixels[index * 4 + 1] = (colour >> 8) & 0xff;   //g
-        pixels[index * 4 + 2] = (colour) & 0xff;        //b
-        pixels[index * 4 + 3] = (colour >> 24) & 0xff;  //alpha
+        pixels[index * 4 + 0] = (colour >> 24) & 0xff;  //r
+        pixels[index * 4 + 1] = (colour >> 16) & 0xff;  //g
+        pixels[index * 4 + 2] = (colour >> 8) & 0xff;   //b
+        pixels[index * 4 + 3] = (colour >> 0) & 0xff;   //alpha
       }
     }
 
