@@ -7,7 +7,7 @@ function TreeMap({ root, treeMapReady, setTreeMapReady, selectedFile, setSelecte
 
   const [ treeMapProcessing, setTreeMapProcessing ] = useState(false);
   
-  const [ rgbGrid, setRgbGrid ] = useState([]);
+  const [ rgbGrid, setRgbGrid ] = useState(null);
   const ref = useRef();
   const [ height, setHeight ] = useState();
   const [ width, setWidth ] = useState();
@@ -28,7 +28,11 @@ function TreeMap({ root, treeMapReady, setTreeMapReady, selectedFile, setSelecte
     // start generating treemap
     (async () => {
       try {
-        await fetch(`${import.meta.env.VITE_APP_API_URL}/treemap/start?root=${root}&height=${ref?.current?.offsetHeight}&width=${ref?.current?.offsetWidth}`, { method: 'POST' });
+        if (rgbGrid === null) {
+          await fetch(`${import.meta.env.VITE_APP_API_URL}/treemap/start?root=${root}&height=${ref?.current?.offsetHeight}&width=${ref?.current?.offsetWidth}`, { method: 'POST' });
+        } else {
+          await fetch(`${import.meta.env.VITE_APP_API_URL}/treemap/zoom?root=${root}&height=${ref?.current?.offsetHeight}&width=${ref?.current?.offsetWidth}`, { method: 'POST' });
+        }
         setTreeMapProcessing(true);
         setTreeMapReady(false);
       } catch (error) {
@@ -178,7 +182,7 @@ function TreeMap({ root, treeMapReady, setTreeMapReady, selectedFile, setSelecte
 
   // render treemap on canvas
   useEffect(() => {
-    if (rgbGrid.length === 0) return;
+    if (rgbGrid === null) return;
 
     const canvas = document.getElementById("treeMap");
     const ctx = canvas.getContext('2d');

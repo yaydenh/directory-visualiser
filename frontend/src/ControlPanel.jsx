@@ -43,7 +43,11 @@ function ControlPanel({ root, selectedFile, setSelectedFile, treeMapReady, setTr
   }, [selectedFile]);
 
   function handleClickSelectParent() {
-    setSelectedFile(parentIds[parentIds.length - 1]);
+    if (selectedIsDir) {
+      setSelectedFile(parentIds[parentIds.length - 2]);
+    } else {
+      setSelectedFile(parentIds[parentIds.length - 1]);
+    }
   }
 
   function handleClickRemakeTreeMap() {
@@ -81,7 +85,7 @@ function ControlPanel({ root, selectedFile, setSelectedFile, treeMapReady, setTr
   return (
     <div className='controls-container'>
       <Button 
-        disabled={parentIds === null}
+        disabled={parentIds === null || selectedFile === root}
         onClick={handleClickSelectParent}
       >
         Select Parent

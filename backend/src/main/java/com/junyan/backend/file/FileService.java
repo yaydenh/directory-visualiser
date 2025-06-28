@@ -59,8 +59,8 @@ public class FileService {
     return fileRepository.getDirectoryParents(path);
   }
 
-  public List<ExtensionCount> getExtensionCounts() {
-    return fileRepository.getExtensionCounts();
+  public List<ExtensionCount> getExtensionCounts(String root) {
+    return fileRepository.getExtensionCounts(root);
   }
 
   public File updateFile(File file) {

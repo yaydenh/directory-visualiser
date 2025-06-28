@@ -69,8 +69,8 @@ public class FileController {
   }
 
   @GetMapping("/extensions")
-  public ResponseEntity<List<ExtensionCount>> getExtensionCounts() {
-    return ResponseEntity.ok().body(fileRepository.getExtensionCounts());
+  public ResponseEntity<List<ExtensionCount>> getExtensionCounts(@RequestParam("root") String root) {
+    return ResponseEntity.ok().body(fileRepository.getExtensionCounts(root));
   }
 
   @PostMapping

@@ -6,7 +6,7 @@ import { VariableSizeGrid  as Grid } from 'react-window'
 import AutoSizer from "react-virtualized-auto-sizer";
 import LinearProgress from '@mui/material/LinearProgress';
 
-function ExtensionInfo({ dataReady, selectedExtension, setSelectedExtension, treeMapReady }) {
+function ExtensionInfo({ root, selectedExtension, setSelectedExtension, treeMapReady }) {
 
   const [ columnWidths, setColumnWidths ] = useState([ 100, 100, 80, 200 ]);
   const [ resizing, setResizing ] = useState({index: null, startX: 0, startWidth: 0});
@@ -37,8 +37,11 @@ function ExtensionInfo({ dataReady, selectedExtension, setSelectedExtension, tre
 
     (async () => {
       try {
-        const dataRes = await fetch(`${import.meta.env.VITE_APP_API_URL}/files/extensions`, { method: 'GET' });
-        const extensionsData = await dataRes.json();
+        const rootRes = await fetch(`${import.meta.env.VITE_APP_API_URL}/files/${root}`, { method: 'GET' });
+        const rootData = await rootRes.json();
+
+        const dataRes = await fetch(`${import.meta.env.VITE_APP_API_URL}/files/extensions?root=${rootData.path}`, { method: 'GET' });
+        let extensionsData = await dataRes.json();
 
         const colourRes = await fetch(`${import.meta.env.VITE_APP_API_URL}/treemap/colours/extension`, { method: 'GET' });
         const colourData = await colourRes.json();

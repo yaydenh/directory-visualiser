@@ -100,7 +100,7 @@ function App() {
                 zoomDirectory={zoomDirectory}
               />
               <ExtensionInfo
-                dataReady={scanSuccess}
+                root={zoomDirectory}
                 selectedExtension={selectedExtension}
                 setSelectedExtension={setSelectedExtension}
                 treeMapReady={treeMapReady}

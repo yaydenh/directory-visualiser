@@ -61,10 +61,11 @@ public interface FileRepository extends JpaRepository<File, Long> {
     FROM file_entity
     WHERE extension IS NOT NULL
     AND extension != ""
+    AND path LIKE :root || "%"
     GROUP BY extension
     ORDER BY count DESC
   """, nativeQuery = true)
-  List<ExtensionCount> getExtensionCounts();
+  List<ExtensionCount> getExtensionCounts(@Param("root") String root);
 
   @Query(value = """
     SELECT id
